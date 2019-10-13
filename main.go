@@ -13,9 +13,9 @@ func main() {
 	router := mux.NewRouter()
 
 	middle := common.NewMiddleware()
-	router.Use(middle.RequestTimeHandler, middle.CorsHandler)
-	router.HandleFunc("/api/db/save", generator.SaveDB)
-	router.HandleFunc("/api/db", generator.ListDB).Methods(http.MethodGet)
+	router.Use(middle.CorsHandler, middle.RequestTimeHandler)
+	router.HandleFunc("/api/v1/login", generator.Login).Methods(http.MethodPost)
+	router.HandleFunc("/api/v1/db", generator.ListDB).Methods(http.MethodGet)
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 
 	log.Println("run at localhost:65535")

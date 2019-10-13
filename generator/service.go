@@ -2,9 +2,12 @@ package generator
 
 import (
 	"generator/common"
-	"log"
 	"net/http"
 )
+
+func Login(w http.ResponseWriter, r *http.Request) {
+	common.RespSuccess(w, "success")
+}
 
 func ListDB(w http.ResponseWriter, r *http.Request) {
 	page := common.Page{
@@ -14,8 +17,4 @@ func ListDB(w http.ResponseWriter, r *http.Request) {
 		Data:  CodeDB{}.List(),
 	}
 	common.RespPage(w, page)
-}
-
-func SaveDB(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.Form)
 }
