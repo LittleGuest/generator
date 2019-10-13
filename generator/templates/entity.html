@@ -1,0 +1,12 @@
+package test
+
+type {{.tableName}}Entity struct {
+{{range $k, $v := .tableInfos}}
+    // {{.ColumnComment}}
+    {{$v.ColumnName}} interface{} `json:"{{$v.ColumnName}}"`
+{{end}}
+}
+
+func (e *{{.tableName}}Entity) TableName() string {
+return "{{.tableName}}"
+}
