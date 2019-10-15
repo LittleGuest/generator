@@ -14,7 +14,9 @@ func main() {
 
 	middle := common.NewMiddleware()
 	router.Use(middle.CorsHandler, middle.RequestTimeHandler)
+
 	router.HandleFunc("/api/v1/login", generator.Login).Methods(http.MethodPost)
+	router.HandleFunc("/api/v1/users", generator.GetUserInfo).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/db", generator.ListDB).Methods(http.MethodGet)
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 

@@ -6,7 +6,11 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	common.RespSuccess(w, "success")
+	common.RespSuccess(w, CodeDB{}.List())
+}
+
+func GetUserInfo(w http.ResponseWriter, r *http.Request) {
+	common.RespSuccess(w, CodeDB{}.List())
 }
 
 func ListDB(w http.ResponseWriter, r *http.Request) {
