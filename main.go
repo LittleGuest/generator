@@ -1,15 +1,32 @@
 package main
 
 import (
+	"flag"
 	"generator/common"
 	"generator/generator"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os/exec"
 	"time"
 )
 
+var (
+	open bool
+)
+
+func init() {
+	flag.BoolVar(&open, "o", true, "open with browser")
+	flag.Parse()
+}
+
 func main() {
+	// TODO 调用浏览器打开页面
+	if open {
+		cmd := exec.Command("cmd", "/C", "start http://localhost:65535")
+		log.Println(cmd.Run())
+	}
+
 	router := mux.NewRouter()
 
 	middle := common.NewMiddleware()
