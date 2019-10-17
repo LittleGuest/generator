@@ -9,7 +9,6 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"time"
 )
 
 var (
@@ -45,8 +44,8 @@ func main() {
 	server := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", host, port),
 		Handler:      router,
-		ReadTimeout:  time.Second * 10,
-		WriteTimeout: time.Second * 10,
+		ReadTimeout:  config.GetServer().ReadTimeout,
+		WriteTimeout: config.GetServer().WriteTimeout,
 	}
 	log.Fatalln(server.ListenAndServe())
 }

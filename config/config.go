@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"time"
 )
 
 // 数据库信息
@@ -32,8 +33,8 @@ type app struct {
 type server struct {
 	Host         string `json:"host"`
 	Port         int64  `json:"port"`
-	ReadTimeout  int64  `json:"read_timeout"`
-	WriteTimeout int64  `json:"write_timeout"`
+	ReadTimeout  time.Duration  `json:"read_timeout"`
+	WriteTimeout time.Duration  `json:"write_timeout"`
 }
 
 // App配置
@@ -65,6 +66,14 @@ func GetAppConfig() *appConfig {
 	return config
 }
 
+func GetApp() *app {
+	return &config.App
+}
+
 func GetServer() *server {
 	return &config.Server
+}
+
+func GetDataBase() *dataBase {
+	return &config.DataBase
 }
