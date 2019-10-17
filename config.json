@@ -1,0 +1,25 @@
+{
+  "app": {
+    "name": "generator"
+  },
+  "server": {
+    "host": "127.0.0.1",
+    "port": 65535,
+    "read_timeout": 10,
+    "write_timeout": 10
+  },
+  "database": {
+    "driver": "mysql",
+    "url": "localhost",
+    "port": 3306,
+    "db_name": "guest.org.cn",
+    "username": "root",
+    "password": "root",
+    "ext": {
+      "character_encoding": "UTF8",
+      "auto_reconnect": true,
+      "useSSL": false,
+      "server_timezone": "UTC"
+    }
+  }
+}

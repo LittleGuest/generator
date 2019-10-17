@@ -1,6 +1,6 @@
 // 借鉴
 // 将给个handler链接起来
-package common
+package middleware
 
 import "net/http"
 

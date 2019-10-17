@@ -1,24 +1,25 @@
 package generator
 
 import (
-	"generator/common"
+	"generator/config"
+	"generator/response"
 	"net/http"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	common.RespSuccess(w, CodeDB{}.List())
+	response.RespSuccess(w, CodeDB{}.List())
 }
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	common.RespSuccess(w, CodeDB{}.List())
+	response.RespSuccess(w, config.GetAppConfig())
 }
 
 func ListDB(w http.ResponseWriter, r *http.Request) {
-	page := common.Page{
+	page := response.Page{
 		Curr:  1,
 		Size:  20,
 		Total: 10,
 		Data:  CodeDB{}.List(),
 	}
-	common.RespPage(w, page)
+	response.RespPage(w, page)
 }
