@@ -14,9 +14,9 @@ type CodeDB struct {
 	// 数据库主机
 	Host string `json:"host"`
 	// 数据库端口
-	Port string `json:"port"`
+	Port int64 `json:"port"`
 	// 数据库名称
-	Database string `json:"database"`
+	DBName string `json:"db_name"`
 	// 用户名
 	Username string `json:"username"`
 	// 密码
@@ -42,7 +42,7 @@ func (t CodeDB) Get() CodeDB {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		err = rows.Scan(&t.Id, &t.Driver, &t.Host, &t.Port, &t.Database, &t.Username, &t.Password, &t.Extra)
+		err = rows.Scan(&t.Id, &t.Driver, &t.Host, &t.Port, &t.DBName, &t.Username, &t.Password, &t.Extra)
 		if err != nil {
 			log.Println(err)
 			continue
@@ -65,7 +65,7 @@ func (t CodeDB) List() []CodeDB {
 	defer rows.Close()
 	codes := make([]CodeDB, 0)
 	for rows.Next() {
-		err = rows.Scan(&t.Id, &t.Driver, &t.Host, &t.Port, &t.Database, &t.Username, &t.Password, &t.Extra)
+		err = rows.Scan(&t.Id, &t.Driver, &t.Host, &t.Port, &t.DBName, &t.Username, &t.Password, &t.Extra)
 		if err != nil {
 			log.Println(err)
 			continue

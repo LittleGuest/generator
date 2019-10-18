@@ -7,7 +7,6 @@ import (
 	"generator/utils"
 	"html/template"
 	"log"
-	"os"
 )
 
 // 单表生成
@@ -32,9 +31,10 @@ func (g Generator) MultiGenerate() {
 // 创建struct
 func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
 	temp := template.Must(template.New(TempEntityName).ParseFiles(TempEntity))
-	file, err := os.Create("./test/" + tableName + ".go")
+	file, err := utils.CreateFile("./test/" + tableName + ".go")
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("创建 struct 失败==>%s", err.Error())
+		return
 	}
 	defer file.Close()
 	m := make(map[string]interface{})

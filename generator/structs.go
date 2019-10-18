@@ -11,7 +11,7 @@ type Generator struct {
 type DBConfig struct {
 	DriverName string
 	Host       string
-	Port       int
+	Port       int64
 	Username   string
 	Password   string
 	DBName     string

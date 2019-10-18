@@ -53,7 +53,7 @@ func CreateDirectory(path string) (err error) {
 }
 
 // 创建文件
-func CreateFile(name string) (err error) {
+func CreateFile(name string) (file *os.File, err error) {
 	// 先创建目录
 	p := filepath.Dir(name)
 	err = CreateDirectory(p)
@@ -61,7 +61,7 @@ func CreateFile(name string) (err error) {
 		return
 	}
 	// 再创建文件
-	_, err = os.OpenFile(name, os.O_CREATE, 0666)
+	file, err = os.OpenFile(name, os.O_CREATE, 0666)
 	if err != nil {
 		log.Printf("创建文件失败：文件名为：%s, %s", name, err.Error())
 	}

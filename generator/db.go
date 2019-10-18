@@ -10,7 +10,10 @@ import (
 var generatorPool *sql.DB
 
 // 获取指定数据库连接
-func (g Generator) OpenGeneratorPool() {
+func (g Generator) OpenGeneratorPool() *sql.DB {
+	if generatorPool != nil {
+		return generatorPool
+	}
 	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", g.Username, g.Password, g.Host, g.Port, g.DBName)
 	if g.Extra != "" {
 		dataSource += fmt.Sprintf("?%s", g.Extra)
@@ -19,7 +22,7 @@ func (g Generator) OpenGeneratorPool() {
 	if err != nil {
 		log.Fatalf("获取指定数据库连接失败：%s", err.Error())
 	}
-	generatorPool = db
+	return db
 }
 
 // 获取指定数据库中所有表信息
@@ -52,7 +55,7 @@ func (g Generator) ListTable() (tables []Table) {
 // 获取指定数据库中指定表字段信息
 func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.ORDINAL_POSITION,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.CHARACTER_MAXIMUM_LENGTH,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.COLUMN_TYPE,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
-	stmt, err := generatorPool.Prepare(tableInfoSql)
+	stmt, err := g.OpenGeneratorPool().Prepare(tableInfoSql)
 	if err != nil {
 		log.Fatalln(err)
 	}

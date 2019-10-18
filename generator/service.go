@@ -15,7 +15,18 @@ func GetUserInfo(w http.ResponseWriter, r *http.Request) {
 }
 
 func SingleGenerate(w http.ResponseWriter, r *http.Request) {
-	response.Success(w, CodeDB{}.Get())
+	codeDB := CodeDB{}.Get()
+	g := Generator{DBConfig{
+		DriverName: codeDB.Driver,
+		Host:       codeDB.Host,
+		Port:       codeDB.Port,
+		Username:   codeDB.Username,
+		Password:   codeDB.Password,
+		DBName:     codeDB.DBName,
+		Extra:      codeDB.Extra,
+	}}
+	g.SingleGenerate(r.URL.Query().Get("table_name"))
+	response.Success(w, codeDB)
 }
 
 func ListDB(w http.ResponseWriter, r *http.Request) {

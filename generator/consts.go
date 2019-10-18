@@ -11,10 +11,10 @@ const (
 	TempServiceImplName = "service_impl.html"
 	TempControllerName  = "controller.html"
 
-	TempEntity      = "./templates/entity.html"
-	TempService     = "./templates/service.html"
-	TempServiceImpl = "./templates/service_impl.html"
-	TempController  = "./templates/controller.html"
+	TempEntity      = "./generator/templates/entity.html"
+	TempService     = "./generator/templates/service.html"
+	TempServiceImpl = "./generator/templates/service_impl.html"
+	TempController  = "./generator/templates/controller.html"
 
 	PkgEntity      = "entity"
 	PkgService     = "service"
