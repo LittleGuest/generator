@@ -1,12 +1,12 @@
 package test
 
-type {{.tableName}}Entity struct {
+type {{.tableName}} struct {
 {{range $k, $v := .tableInfos}}
     // {{.ColumnComment}}
-    {{$v.CamelName}} interface{} `json:"{{$v.ColumnName}}"`
+    {{$v.CamelName}} {{$v.GoType}} `json:"{{$v.ColumnName}}"`
 {{end}}
 }
 
-func (e *{{.tableName}}Entity) TableName() string {
-return "{{.tableName}}"
+func (e *{{.tableName}}) TableName() string {
+    return "{{.tableName}}"
 }

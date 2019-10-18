@@ -43,7 +43,7 @@ type TableInfo struct {
 	// 数值范围
 	NumericScale interface{}
 	// 字符最大长度
-	CharacterMaximumLength int64
+	CharacterMaximumLength interface{}
 	// 字段注释
 	ColumnComment string
 	// 驼峰名

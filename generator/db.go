@@ -53,7 +53,7 @@ func (g Generator) ListTable() (tables []Table) {
 
 // 获取指定数据库中指定表字段信息
 func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
-	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.ORDINAL_POSITION,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.CHARACTER_MAXIMUM_LENGTH,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.COLUMN_TYPE,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
+	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.CHARACTER_MAXIMUM_LENGTH,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
 	stmt, err := g.OpenGeneratorPool().Prepare(tableInfoSql)
 	if err != nil {
 		log.Fatalln(err)
@@ -82,8 +82,8 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 			log.Println(err)
 			continue
 		}
-		// TODO golang类型 <=> mysql类型
 		globalConfig := NewGlobalConfig()
+		// 转换大小写
 		if globalConfig.CamelCase {
 			if globalConfig.Pascal {
 				tableInfo.CamelName = utils.PascalUtil(tableInfo.ColumnName, "_")
@@ -91,6 +91,8 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 				tableInfo.CamelName = utils.CamelCaseUtil(tableInfo.ColumnName, "_")
 			}
 		}
+		// mysql类型 => golang类型
+		tableInfo.GoType = convert[tableInfo.DataType]
 		tableInfos = append(tableInfos, tableInfo)
 	}
 	return
