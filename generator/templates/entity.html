@@ -11,6 +11,6 @@ type {{.tableName}} struct {
 {{end}}
 }
 
-func (e *{{.tableName}}) TableName() string {
+func (e {{.tableName}}) TableName() string {
     return "{{.tableName}}"
 }

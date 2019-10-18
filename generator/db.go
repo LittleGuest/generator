@@ -6,6 +6,7 @@ import (
 	"generator/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
+	"strings"
 )
 
 var generatorPool *sql.DB
@@ -29,7 +30,7 @@ func (g Generator) OpenGeneratorPool() *sql.DB {
 // 获取指定数据库中所有表信息
 func (g Generator) ListTable() (tables []Table) {
 	tablesSql := "SELECT t.TABLE_NAME,t.TABLE_COMMENT FROM information_schema.`TABLES` t WHERE t.TABLE_SCHEMA = ?"
-	stmt, err := generatorPool.Prepare(tablesSql)
+	stmt, err := g.OpenGeneratorPool().Prepare(tablesSql)
 	if err != nil {
 		log.Panicln(err)
 	}
@@ -91,8 +92,14 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 				tableInfo.CamelName = utils.CamelCaseUtil(tableInfo.ColumnName, "_")
 			}
 		}
-		// mysql类型 => golang类型
-		tableInfo.GoType = convert[tableInfo.DataType]
+		// 类型转换
+		switch strings.ToUpper(g.DriverName) {
+		case strings.ToUpper(g.DriverName):
+			// mysql类型 => golang类型
+			tableInfo.GoType = MysqlToGo[tableInfo.DataType]
+		default:
+			tableInfo.GoType = "interface{}"
+		}
 		tableInfos = append(tableInfos, tableInfo)
 	}
 	return

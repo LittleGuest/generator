@@ -1,7 +1,7 @@
 // mysql 类型和golang 类型对应
 package generator
 
-var convert = map[string]string{
+var MysqlToGo = map[string]string{
 	"int":                "int",
 	"integer":            "int",
 	"tinyint":            "int",
