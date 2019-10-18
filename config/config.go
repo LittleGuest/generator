@@ -11,17 +11,17 @@ import (
 // 数据库信息
 type dataBase struct {
 	Driver   string `json:"driver"`
-	Url      string `json:"url"`
+	Host     string `json:"host"`
 	Port     int64  `json:"port"`
-	DbName   string `json:"db_name"`
+	DBName   string `json:"db_name"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	Ext      struct {
+	Extra    struct {
 		CharacterEncoding string `json:"character_encoding"`
 		AutoReconnect     bool   `json:"auto_reconnect"`
-		UseSSL            bool   `json:"use_ssl"`
+		UseSsl            bool   `json:"use_ssl"`
 		ServerTimezone    string `json:"server_timezone"`
-	} `json:"ext"`
+	} `json:"extra"`
 }
 
 // 应用信息

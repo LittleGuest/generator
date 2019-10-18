@@ -7,19 +7,23 @@ import (
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
-	response.RespSuccess(w, CodeDB{}.List())
+	response.Success(w, CodeDB{}.List())
 }
 
 func GetUserInfo(w http.ResponseWriter, r *http.Request) {
-	response.RespSuccess(w, config.GetAppConfig())
+	response.Success(w, config.GetAppConfig())
+}
+
+func SingleGenerate(w http.ResponseWriter, r *http.Request) {
+	response.Success(w, CodeDB{}.Get())
 }
 
 func ListDB(w http.ResponseWriter, r *http.Request) {
-	page := response.Page{
+	page := response.PageInfo{
 		Curr:  1,
 		Size:  20,
 		Total: 10,
 		Data:  CodeDB{}.List(),
 	}
-	response.RespPage(w, page)
+	response.Page(w, page)
 }

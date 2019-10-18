@@ -37,7 +37,7 @@ func main() {
 	// 路由
 	router.HandleFunc("/api/v1/login", generator.Login).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/users", generator.GetUserInfo).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/db", generator.ListDB).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/db", generator.SingleGenerate).Methods(http.MethodGet)
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 

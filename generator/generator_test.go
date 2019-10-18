@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGenerator(t *testing.T) {
+func TestGenerator_SingleGenerate(t *testing.T) {
 	generator := Generator{
 		DBConfig: DBConfig{
 			DriverName: "mysql",
@@ -19,7 +19,22 @@ func TestGenerator(t *testing.T) {
 			Extra:      "charset=utf8",
 		},
 	}
-	generator.Generate()
+	generator.SingleGenerate("blog_base")
+}
+
+func TestGenerator_MultiGenerate(t *testing.T) {
+	generator := Generator{
+		DBConfig: DBConfig{
+			DriverName: "mysql",
+			Host:       "localhost",
+			Port:       3306,
+			Username:   "root",
+			Password:   "root",
+			DBName:     "guest.org.cn",
+			Extra:      "charset=utf8",
+		},
+	}
+	generator.MultiGenerate()
 }
 
 func TestPascalUtil(t *testing.T) {

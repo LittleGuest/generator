@@ -7,7 +7,7 @@ import (
 )
 
 // 分页信息结
-type Page struct {
+type PageInfo struct {
 	Curr  int         `json:"curr"`
 	Size  int         `json:"size"`
 	Total int         `json:"total"`
@@ -15,7 +15,7 @@ type Page struct {
 }
 
 // 返回成功信息
-func RespSuccess(w http.ResponseWriter, data interface{}) {
+func Success(w http.ResponseWriter, data interface{}) {
 	m := make(map[string]interface{})
 	m["code"] = 0
 	m["data"] = data
@@ -27,7 +27,7 @@ func RespSuccess(w http.ResponseWriter, data interface{}) {
 }
 
 // 返回失败信息
-func RespFail(w http.ResponseWriter, msg string) {
+func Fatal(w http.ResponseWriter, msg string) {
 	m := make(map[string]interface{})
 	m["code"] = 1
 	m["msg"] = msg
@@ -39,7 +39,7 @@ func RespFail(w http.ResponseWriter, msg string) {
 }
 
 // 返回错误信息
-func RespError(w http.ResponseWriter, code uint, msg string) {
+func Error(w http.ResponseWriter, code uint, msg string) {
 	m := make(map[string]interface{})
 	m["code"] = code
 	m["msg"] = msg
@@ -51,7 +51,7 @@ func RespError(w http.ResponseWriter, code uint, msg string) {
 }
 
 // 返回分页成功信息
-func RespPage(w http.ResponseWriter, page Page) {
+func Page(w http.ResponseWriter, page PageInfo) {
 	m := make(map[string]interface{})
 	m["code"] = 0
 	m["data"] = page

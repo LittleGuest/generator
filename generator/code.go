@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"generator/pool"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
@@ -29,8 +30,30 @@ func (t *CodeDB) save() {
 }
 
 // 获取配置的数据库列表
+func (t CodeDB) Get() CodeDB {
+	stmt, err := pool.GetPool().Prepare("SELECT * FROM code_db")
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query()
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		err = rows.Scan(&t.Id, &t.Driver, &t.Host, &t.Port, &t.Database, &t.Username, &t.Password, &t.Extra)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+	}
+	return t
+}
+
+// 获取配置的数据库列表
 func (t CodeDB) List() []CodeDB {
-	stmt, err := pool.Prepare("SELECT * FROM code_db")
+	stmt, err := pool.GetPool().Prepare("SELECT * FROM code_db")
 	if err != nil {
 		log.Panicln(err)
 	}

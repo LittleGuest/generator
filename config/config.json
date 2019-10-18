@@ -8,17 +8,17 @@
     "read_timeout": 60,
     "write_timeout": 60
   },
-  "database": {
+  "data_base": {
     "driver": "mysql",
-    "url": "localhost",
+    "host": "localhost",
     "port": 3306,
     "db_name": "guest.org.cn",
     "username": "root",
     "password": "root",
-    "ext": {
+    "extra": {
       "character_encoding": "UTF8",
       "auto_reconnect": true,
-      "useSSL": false,
+      "use_ssl": false,
       "server_timezone": "UTC"
     }
   }
