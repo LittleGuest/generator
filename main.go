@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"time"
 )
 
 var (
@@ -27,25 +28,27 @@ func main() {
 	//	log.Println(cmd.Run())
 	//}
 
+	// 初始化路由
 	router := mux.NewRouter()
 	middle := middleware.NewMiddleware()
+	// 启用中间件
 	router.Use(middle.CorsHandler, middle.RequestTimeHandler)
 
+	// 路由
 	router.HandleFunc("/api/v1/login", generator.Login).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/users", generator.GetUserInfo).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/db", generator.ListDB).Methods(http.MethodGet)
+	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 
-	appConfig := config.NewAppConfig()
-	host := appConfig.Server.Host
-	port := appConfig.Server.Port
-	log.Printf("run at %s:%d", host, port)
+	s := config.GetServer()
+	log.Printf("run at %s:%d", s.Host, s.Port)
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", host, port),
+		Addr:         fmt.Sprintf("%s:%d", s.Host, s.Port),
 		Handler:      router,
-		ReadTimeout:  config.GetServer().ReadTimeout,
-		WriteTimeout: config.GetServer().WriteTimeout,
+		ReadTimeout:  time.Second * s.ReadTimeout,
+		WriteTimeout: time.Second * s.ReadTimeout,
 	}
 	log.Fatalln(server.ListenAndServe())
 }

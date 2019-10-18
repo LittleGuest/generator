@@ -31,10 +31,10 @@ type app struct {
 
 // 服务信息
 type server struct {
-	Host         string `json:"host"`
-	Port         int64  `json:"port"`
-	ReadTimeout  time.Duration  `json:"read_timeout"`
-	WriteTimeout time.Duration  `json:"write_timeout"`
+	Host         string        `json:"host"`
+	Port         int64         `json:"port"`
+	ReadTimeout time.Duration `json:"read_timeout"`
+	WriteTimeout time.Duration `json:"write_timeout"`
 }
 
 // App配置
@@ -46,9 +46,9 @@ type appConfig struct {
 
 var config *appConfig
 
-func NewAppConfig() *appConfig {
+func init() {
 	if config != nil {
-		return config
+		return
 	}
 	// 解析json文件
 	bytes, err := ioutil.ReadFile("config.json")
@@ -59,7 +59,6 @@ func NewAppConfig() *appConfig {
 	if err != nil {
 		log.Fatalf("解析配置文件 config.json 失败：%s", err)
 	}
-	return config
 }
 
 func GetAppConfig() *appConfig {

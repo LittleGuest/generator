@@ -5,8 +5,8 @@
   "server": {
     "host": "127.0.0.1",
     "port": 65535,
-    "read_timeout": 10,
-    "write_timeout": 10
+    "read_timeout": 60,
+    "write_timeout": 60
   },
   "database": {
     "driver": "mysql",
