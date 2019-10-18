@@ -1,7 +1,7 @@
 package generator
 
 type Generator struct {
-	//*GlobalConfig
+	GlobalConfig
 	//*PackageConfig
 	//*TemplateConfig
 	DBConfig
@@ -26,25 +26,40 @@ type Table struct {
 
 // 代码生成器：表信息
 type TableInfo struct {
-	TableSchema            string
-	TableName              string
-	ColumnName             string
-	OrdinalPosition        int64
-	ColumnDefault          interface{}
-	IsNullable             string
-	DataType               string
-	CharacterMaximumLength interface{}
-	NumericPrecision       interface{}
-	NumericScale           interface{}
-	ColumnType             string
-	ColumnComment          string
+	// 数据库名称
+	TableSchema string
+	// 表名
+	TableName string
+	// 数据库字段名
+	ColumnName string
+	// 默认值
+	ColumnDefault interface{}
+	// 是否为空
+	IsNullable string
+	// 数据库字段类型
+	DataType string
+	// 数字精度
+	NumericPrecision interface{}
+	// 数值范围
+	NumericScale interface{}
+	// 字符最大长度
+	CharacterMaximumLength int64
+	// 字段注释
+	ColumnComment string
+	// 驼峰名
+	CamelName string
+	// go 类型
+	GoType string
 }
 
 // 代码生成器：全局配置
 type GlobalConfig struct {
+	// 是否转驼峰
 	CamelCase bool
-	Pascal    bool
-	Override  bool
+	// 是否转大驼峰
+	Pascal bool
+	// 是否覆盖文件
+	Override bool
 }
 
 func NewGlobalConfig() GlobalConfig {

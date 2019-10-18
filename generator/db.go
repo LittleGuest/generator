@@ -3,6 +3,7 @@ package generator
 import (
 	"database/sql"
 	"fmt"
+	"generator/utils"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
@@ -38,8 +39,6 @@ func (g Generator) ListTable() (tables []Table) {
 		log.Fatalln(err.Error())
 	}
 	defer rows.Close()
-	// TODO
-	//tables = make([]Table, 0)
 	for rows.Next() {
 		table := Table{}
 		err = rows.Scan(&table.Name, &table.Comment)
@@ -65,16 +64,32 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 		log.Fatalln(err)
 	}
 	defer rows.Close()
-	// TODO
-	//tableInfos = make([]TableInfo, 0)
 	for rows.Next() {
 		tableInfo := TableInfo{}
-		err := rows.Scan(&tableInfo.TableSchema, &tableInfo.TableName, &tableInfo.ColumnName, &tableInfo.OrdinalPosition,
-			&tableInfo.ColumnDefault, &tableInfo.IsNullable, &tableInfo.DataType, &tableInfo.CharacterMaximumLength,
-			&tableInfo.NumericPrecision, &tableInfo.NumericScale, &tableInfo.ColumnType, &tableInfo.ColumnComment)
+		err := rows.Scan(
+			&tableInfo.TableSchema,
+			&tableInfo.TableName,
+			&tableInfo.ColumnName,
+			&tableInfo.ColumnDefault,
+			&tableInfo.IsNullable,
+			&tableInfo.DataType,
+			&tableInfo.NumericPrecision,
+			&tableInfo.NumericScale,
+			&tableInfo.CharacterMaximumLength,
+			&tableInfo.ColumnComment,
+		)
 		if err != nil {
 			log.Println(err)
 			continue
+		}
+		// TODO golang类型 <=> mysql类型
+		globalConfig := NewGlobalConfig()
+		if globalConfig.CamelCase {
+			if globalConfig.Pascal {
+				tableInfo.CamelName = utils.PascalUtil(tableInfo.ColumnName, "_")
+			} else {
+				tableInfo.CamelName = utils.CamelCaseUtil(tableInfo.ColumnName, "_")
+			}
 		}
 		tableInfos = append(tableInfos, tableInfo)
 	}

@@ -3,7 +3,7 @@ package test
 type {{.tableName}}Entity struct {
 {{range $k, $v := .tableInfos}}
     // {{.ColumnComment}}
-    {{$v.ColumnName}} interface{} `json:"{{$v.ColumnName}}"`
+    {{$v.CamelName}} interface{} `json:"{{$v.ColumnName}}"`
 {{end}}
 }
 

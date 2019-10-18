@@ -24,8 +24,6 @@ func (g Generator) MultiGenerate() {
 }
 
 // TODO 代码生成器待优化，时间待定
-// TODO golang类型 <=> mysql类型
-// TODO 字段名大小写、创建目录
 // TODO ...
 
 // 创建struct
