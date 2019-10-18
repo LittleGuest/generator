@@ -1,5 +1,9 @@
 package test
 
+import (
+    "time"
+)
+
 type {{.tableName}} struct {
 {{range $k, $v := .tableInfos}}
     // {{.ColumnComment}}
