@@ -33,7 +33,7 @@ type app struct {
 type server struct {
 	Host         string        `json:"host"`
 	Port         int64         `json:"port"`
-	ReadTimeout time.Duration `json:"read_timeout"`
+	ReadTimeout  time.Duration `json:"read_timeout"`
 	WriteTimeout time.Duration `json:"write_timeout"`
 }
 
@@ -51,7 +51,7 @@ func init() {
 		return
 	}
 	// 解析json文件
-	bytes, err := ioutil.ReadFile("config.json")
+	bytes, err := ioutil.ReadFile("./config/config.json")
 	if err != nil {
 		log.Fatalf("解析配置文件 config.json 失败：%s", err)
 	}

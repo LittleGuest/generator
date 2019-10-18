@@ -29,8 +29,8 @@ func (t *CodeDB) save() {
 }
 
 // 获取配置的数据库列表
-func (t CodeDB) List() ([]CodeDB) {
-	stmt, err := Pool.Prepare("SELECT * FROM code_db")
+func (t CodeDB) List() []CodeDB {
+	stmt, err := pool.Prepare("SELECT * FROM code_db")
 	if err != nil {
 		log.Panicln(err)
 	}

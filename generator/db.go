@@ -2,71 +2,57 @@ package generator
 
 import (
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 )
 
-var Pool *sql.DB
+var pool *sql.DB
 
-// 获取数据库连接
-func init() {
-	if Pool == nil {
-		db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/guest.org.cn")
-		if err != nil {
-			log.Panicln("数据库连接失败。。。", err.Error())
-		}
-		Pool = db
+// 获取指定数据库连接
+func (g Generator) Open() {
+	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", g.Username, g.Password, g.Host, g.Port, g.DBName)
+	if g.Extra != "" {
+		dataSource += fmt.Sprintf("?%s", g.Extra)
 	}
-}
-
-// 获取数据库连接
-func (g *Generator) Open() (db *sql.DB) {
-	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s",
-		g.Username, g.Password, g.Host, g.Port, g.DBName, g.OtherParam)
-	db, err := sql.Open(g.DriverName, dataSourceName)
+	db, err := sql.Open(g.DriverName, dataSource)
 	if err != nil {
-		log.Panicln("数据库连接失败", err)
+		log.Fatalf("获取指定数据库连接失败：%s", err.Error())
 	}
-	return
+	pool = db
 }
 
-// 获取数据库所有表信息
-func (g *Generator) ListTables() []Tables {
-	tablesSql := "SELECT t.TABLE_NAME,t.TABLE_COMMENT " +
-		"FROM information_schema.`TABLES` t " +
-		"WHERE t.TABLE_SCHEMA = ?"
-	stmt, err := g.Prepare(tablesSql)
+// 获取指定数据库中所有表信息
+func (g Generator) ListTable() (tables []Table) {
+	tablesSql := "SELECT t.TABLE_NAME,t.TABLE_COMMENT FROM information_schema.`TABLES` t WHERE t.TABLE_SCHEMA = ?"
+	stmt, err := pool.Prepare(tablesSql)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(g.DBName)
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err.Error())
 	}
 	defer rows.Close()
-	tables := make([]Tables, 0)
+	// TODO
+	//tables = make([]Table, 0)
 	for rows.Next() {
-		table := Tables{}
-		err = rows.Scan(&table.TableName, &table.TableComment)
+		table := Table{}
+		err = rows.Scan(&table.Name, &table.Comment)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 		tables = append(tables, table)
 	}
-	return tables
+	return
 }
 
-// 获取数据库表信息
-func (g *Generator) GetTableInfo(tableName string) []TableInfo {
-	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.ORDINAL_POSITION,c.COLUMN_DEFAULT,c.IS_NULLABLE," +
-		"c.DATA_TYPE,c.CHARACTER_MAXIMUM_LENGTH,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.COLUMN_TYPE,c.COLUMN_COMMENT " +
-		"FROM information_schema.`COLUMNS` c " +
-		"WHERE c.TABLE_SCHEMA = ? " +
-		"AND c.TABLE_NAME = ?"
-	stmt, err := g.Prepare(tableInfoSql)
+// 获取指定数据库中指定表字段信息
+func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
+	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.ORDINAL_POSITION,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.CHARACTER_MAXIMUM_LENGTH,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.COLUMN_TYPE,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
+	stmt, err := pool.Prepare(tableInfoSql)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -76,7 +62,8 @@ func (g *Generator) GetTableInfo(tableName string) []TableInfo {
 		log.Fatalln(err)
 	}
 	defer rows.Close()
-	tableInfos := make([]TableInfo, 0)
+	// TODO
+	//tableInfos = make([]TableInfo, 0)
 	for rows.Next() {
 		tableInfo := TableInfo{}
 		err := rows.Scan(&tableInfo.TableSchema, &tableInfo.TableName, &tableInfo.ColumnName, &tableInfo.OrdinalPosition,
@@ -88,5 +75,5 @@ func (g *Generator) GetTableInfo(tableName string) []TableInfo {
 		}
 		tableInfos = append(tableInfos, tableInfo)
 	}
-	return tableInfos
+	return
 }
