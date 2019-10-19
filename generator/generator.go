@@ -9,6 +9,8 @@ import (
 	"log"
 )
 
+// TODO 文件输出到浏览器，打包下载
+
 // 单表生成
 func (g Generator) SingleGenerate(tableName string) {
 	// 获取表信息
@@ -19,12 +21,8 @@ func (g Generator) SingleGenerate(tableName string) {
 // 多表生成
 func (g Generator) MultiGenerate() {
 	listTables := g.ListTable()
-	log.Println(listTables)
 	g.Run(listTables)
 }
-
-// TODO 代码生成器待优化，时间待定
-// TODO ...
 
 // 创建struct
 func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
@@ -45,16 +43,10 @@ func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
 
 // 代码生成启动
 func (g *Generator) Run(table []Table) {
-	done := make(chan bool)
 	go func() {
 		for _, v := range table {
 			tableInfos := g.GetTableInfo(v.Name)
 			g.CreateStruct(v.Name, tableInfos)
 		}
-		done <- true
 	}()
-	// TODO 是否需要
-	select {
-	case <-done:
-	}
 }

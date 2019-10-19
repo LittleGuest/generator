@@ -18,7 +18,7 @@ func (m Middleware) RequestTimeHandler(handler http.Handler) http.Handler {
 		start := time.Now()
 		handler.ServeHTTP(w, r)
 		end := time.Now()
-		log.Printf("%v\t%v, 耗时：%v\n", r.Method, r.RequestURI, end.Sub(start))
+		log.Printf("%v\t%v, 耗时：%v", r.Method, r.RequestURI, end.Sub(start))
 	})
 }
 
