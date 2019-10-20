@@ -2,15 +2,16 @@ package main
 
 import (
 	"archive/zip"
-	"bytes"
 	"flag"
 	"fmt"
 	"generator/config"
 	"generator/middleware"
 	"generator/service"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -57,42 +58,42 @@ func main() {
 		//log.Println(rc.File)
 
 		log.Println("=======================================")
-
-		// 写zip
-		buf := new(bytes.Buffer)
-		zw := zip.NewWriter(buf)
-		var files = []struct {
-			Name string
-			Body string
-		}{
-			{"readme.txt", "thi archive contains some text files;"},
-			{"gopher.txt", "Gopher name:\nGeorge\nGeoffrey\nGonzo"},
-			{"todo.txt", "get animal handing licence.\nWrite more examples"},
+		zipFile, err := os.Create("test.zip")
+		if err != nil {
+			log.Panicln(err)
 		}
+		defer zipFile.Close()
+		zw := zip.NewWriter(zipFile)
+		defer zw.Close()
 
-		for _, file := range files {
-			f, err := zw.Create(file.Name)
-			if err != nil {
-				log.Println(err)
-				return
-			}
-			_, err = f.Write([]byte(file.Body))
-			if err != nil {
-				log.Println(err)
-				return
-			}
-
-		}
-
-		zw.Flush()
-		zw.Close()
-
-		//fileInfos, _ := ioutil.ReadDir("./test/")
-		//log.Println(fileInfos)
-		//for _, v := range fileInfos {
-		//	fileHeader, _ := zip.FileInfoHeader(v)
-		//	log.Println(fileHeader)
+		//fileInfos, err := ioutil.ReadDir(`D:\coding\workspaces\gopher-go`)
+		//for _, file := range fileInfos {
+		//	fw, err := zw.Create(file.Name())
+		//	if err != nil {
+		//		log.Println(err)
+		//		return
+		//	}
+		//
+		//	_, err = fw.Write()
+		//	if err != nil {
+		//		log.Println(err)
+		//		return
+		//	}
 		//}
+
+		bytes, err := ioutil.ReadFile(`D:\coding\workspaces\generator\main.go`)
+		if err != nil {
+			log.Panic(err)
+		}
+		fw, err := zw.Create("main.go")
+		if err != nil {
+			log.Panic(err)
+		}
+		_, _ = fw.Write(bytes)
+		w.Header().Set("Content-Disposition", "attachment;filename=test.zip")
+		//w.Header().Set("Content-Type", "application/octet-stream")
+		out, _ := ioutil.ReadFile("test.zip")
+		w.Write(out)
 	}).Methods(http.MethodGet)
 
 	// 静态文件服务
