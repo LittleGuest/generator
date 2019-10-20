@@ -42,7 +42,20 @@ func ListCodeDB(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListTables(w http.ResponseWriter, r *http.Request) {
-
+	// 获取配置的数据库信息
+	codeDB := CodeDB{}.Get()
+	g := generator.Generator{
+		DBConfig: generator.DBConfig{
+			DriverName: codeDB.Driver,
+			Host:       codeDB.Host,
+			Port:       codeDB.Port,
+			Username:   codeDB.Username,
+			Password:   codeDB.Password,
+			DBName:     codeDB.DBName,
+			Extra:      codeDB.Extra,
+		},
+	}
+	response.Success(w, g.ListTable(""))
 }
 
 func Generate(w http.ResponseWriter, r *http.Request) {

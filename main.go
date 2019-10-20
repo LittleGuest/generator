@@ -1,6 +1,8 @@
 package main
 
 import (
+	"archive/zip"
+	"bytes"
 	"flag"
 	"fmt"
 	"generator/config"
@@ -43,6 +45,55 @@ func main() {
 	router.HandleFunc("/api/v1/db/list", service.ListCodeDB).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/zip", func(w http.ResponseWriter, r *http.Request) {
+		// 读zip
+		//rc, err := zip.OpenReader("./test.zip")
+		//if err != nil {
+		//	log.Println(err)
+		//	return
+		//}
+		//defer rc.Close()
+		//log.Println(rc.Comment)
+		//log.Println(rc.File)
+
+		log.Println("=======================================")
+
+		// 写zip
+		buf := new(bytes.Buffer)
+		zw := zip.NewWriter(buf)
+		var files = []struct {
+			Name string
+			Body string
+		}{
+			{"readme.txt", "thi archive contains some text files;"},
+			{"gopher.txt", "Gopher name:\nGeorge\nGeoffrey\nGonzo"},
+			{"todo.txt", "get animal handing licence.\nWrite more examples"},
+		}
+
+		for _, file := range files {
+			f, err := zw.Create(file.Name)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			_, err = f.Write([]byte(file.Body))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+		}
+
+		zw.Flush()
+		zw.Close()
+
+		//fileInfos, _ := ioutil.ReadDir("./test/")
+		//log.Println(fileInfos)
+		//for _, v := range fileInfos {
+		//	fileHeader, _ := zip.FileInfoHeader(v)
+		//	log.Println(fileHeader)
+		//}
+	}).Methods(http.MethodGet)
 
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
