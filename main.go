@@ -22,6 +22,7 @@ func init() {
 }
 
 func main() {
+	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
 	// TODO 调用浏览器打开页面
 	//if open {
 	//	cmd := exec.Command("cmd", "/C", "start http://localhost:65535")
@@ -37,13 +38,12 @@ func main() {
 	// 路由
 	router.HandleFunc("/api/v1/login", service.Login).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/users", service.GetUserInfo).Methods(http.MethodGet)
-
 	router.HandleFunc("/api/v1/db", service.GetCodeDB).Methods(http.MethodGet)
 	router.HandleFunc("/api/v1/db", service.SaveCodeDB).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/db/list", service.ListCodeDB).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodGet)
 
-	router.HandleFunc("/api/v1/generator/single", service.SingleGenerate).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/generator/multi", service.MultiGenerate).Methods(http.MethodGet)
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 

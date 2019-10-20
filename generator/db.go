@@ -28,14 +28,21 @@ func (g Generator) OpenGeneratorPool() *sql.DB {
 }
 
 // 获取指定数据库中所有表信息
-func (g Generator) ListTable() (tables []Table) {
+func (g Generator) ListTable(tableNames string) (tables []Table) {
 	tablesSql := "SELECT t.TABLE_NAME,t.TABLE_COMMENT FROM information_schema.`TABLES` t WHERE t.TABLE_SCHEMA = ?"
+	if tableNames != "" {
+		tablesSql += " AND FIND_IN_SET(t.TABLE_NAME, ?)"
+	}
 	stmt, err := g.OpenGeneratorPool().Prepare(tablesSql)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(g.DBName)
+	if tableNames != "" {
+		log.Println(tablesSql)
+		rows, err = stmt.Query(tableNames)
+	}
 	if err != nil {
 		log.Fatalln(err)
 	}

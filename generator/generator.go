@@ -9,8 +9,6 @@ import (
 	"log"
 )
 
-// TODO 文件输出到浏览器，打包下载
-
 // 单表生成
 func (g Generator) SingleGenerate(tableName string) {
 	// 获取表信息
@@ -19,8 +17,8 @@ func (g Generator) SingleGenerate(tableName string) {
 }
 
 // 多表生成
-func (g Generator) MultiGenerate() {
-	listTables := g.ListTable()
+func (g Generator) MultiGenerate(tableNames string) {
+	listTables := g.ListTable(tableNames)
 	g.Run(listTables)
 }
 

@@ -6,7 +6,9 @@ import (
 	"generator/generator"
 	"generator/response"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"strconv"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -39,29 +41,22 @@ func ListCodeDB(w http.ResponseWriter, r *http.Request) {
 	response.Page(w, page)
 }
 
-func SingleGenerate(w http.ResponseWriter, r *http.Request) {
-	tableName := r.URL.Query().Get("table_name")
-	if tableName == "" {
-		response.Fatal(w, "table_name必填")
-		return
-	}
-	codeDB := CodeDB{}.Get()
-	g := generator.Generator{
-		DBConfig: generator.DBConfig{
-			DriverName: codeDB.Driver,
-			Host:       codeDB.Host,
-			Port:       codeDB.Port,
-			Username:   codeDB.Username,
-			Password:   codeDB.Password,
-			DBName:     codeDB.DBName,
-			Extra:      codeDB.Extra,
-		},
-	}
-	g.SingleGenerate(tableName)
-	response.Success(w, codeDB)
+func ListTables(w http.ResponseWriter, r *http.Request) {
+
 }
 
-func MultiGenerate(w http.ResponseWriter, r *http.Request) {
+func Generate(w http.ResponseWriter, r *http.Request) {
+	single, err := strconv.Atoi(r.URL.Query().Get("single"))
+	if err != nil {
+		log.Println(err)
+		response.Fatal(w, err.Error())
+		return
+	}
+	tableNames := r.URL.Query().Get("table_names")
+
+	// TODO 文件输出到浏览器，打包下载
+
+	// 获取配置的数据库信息
 	codeDB := CodeDB{}.Get()
 	g := generator.Generator{
 		DBConfig: generator.DBConfig{
@@ -74,6 +69,22 @@ func MultiGenerate(w http.ResponseWriter, r *http.Request) {
 			Extra:      codeDB.Extra,
 		},
 	}
-	g.MultiGenerate()
-	response.Success(w, codeDB)
+	switch single {
+	case 0:
+		// 多表
+		g.MultiGenerate(tableNames)
+		response.Success(w, "成功")
+	case 1:
+		// 单表
+		if tableNames == "" {
+			response.Fatal(w, "table_name必填")
+			return
+		}
+
+		g.SingleGenerate(tableNames)
+		response.Success(w, codeDB)
+	default:
+		// 无
+		response.Fatal(w, "无此类型")
+	}
 }
