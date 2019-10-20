@@ -29,6 +29,7 @@ func (m Middleware) CorsHandler(handler http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		// 设置允许的Header类型
 		w.Header().Set("Access-Control-Allow-Headers", "*")
+		// options 请求直接返回
 		if r.Method == http.MethodOptions {
 			return
 		}

@@ -21,7 +21,7 @@ func SaveCodeDB(w http.ResponseWriter, r *http.Request) {
 	codeDB := CodeDB{}
 	bytes, _ := ioutil.ReadAll(r.Body)
 	_ = json.Unmarshal(bytes, &codeDB)
-
+	codeDB.update()
 	response.Success(w, codeDB)
 }
 

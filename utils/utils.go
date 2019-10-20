@@ -47,7 +47,7 @@ func FirstLetterToUpper(target string) (result string) {
 func CreateDirectory(path string) (err error) {
 	err = os.MkdirAll(path, 0666)
 	if err != nil {
-		log.Printf("创建目录失败：目录：%s, %s", path, err.Error())
+		log.Printf("创建目录失败：目录：%s, %v", path, err)
 	}
 	return
 }
@@ -63,7 +63,7 @@ func CreateFile(name string) (file *os.File, err error) {
 	// 再创建文件
 	file, err = os.OpenFile(name, os.O_CREATE, 0666)
 	if err != nil {
-		log.Printf("创建文件失败：文件名为：%s, %s", name, err.Error())
+		log.Printf("创建文件失败：文件名为：%s, %v", name, err)
 	}
 	return
 }

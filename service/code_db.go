@@ -25,20 +25,80 @@ type CodeDB struct {
 	Extra string `json:"extra"`
 }
 
-func (t *CodeDB) save() {
+// 保存配置的数据库信息
+func (t CodeDB) save() (id int64, affected int64) {
+	stmt, err := pool.GetPool().Prepare("INSERT INTO code_db(driver,`host`,`port`,db_name,username,`password`,extra) VALUES(?,?,?,?,?,?,?)")
+	if err != nil {
+		log.Printf("保存配置的数据库信息失败==>%v", err)
+		return
+	}
+	defer stmt.Close()
+	if stmt == nil {
+		log.Printf("保存配置的数据库信息失败==>%v", err)
+		return
+	}
+	result, err := stmt.Exec(t.Driver, t.Host, t.Port, t.DBName, t.Username, t.Password, t.Extra)
+	if err != nil {
+		log.Printf("保存配置的数据库信息失败==>%v", err)
+		return
+	}
+	affected, err = result.RowsAffected()
+	id, err = result.LastInsertId()
+	return
+}
 
+// 更新配置的数据库信息
+func (t CodeDB) update() (affected int64) {
+	updateSql := "UPDATE code_db SET id = ?"
+	if t.Driver != "" {
+		updateSql += ",driver = ?"
+	}
+	if t.Host != "" {
+		updateSql += ",`host` = ?"
+	}
+	if t.Port >= 0 || t.Port <= 65535 {
+		updateSql += ",`port` = ?"
+	}
+	if t.DBName != "" {
+		updateSql += ",db_name = ?"
+	}
+	if t.Username != "" {
+		updateSql += ",username = ?"
+	}
+	if t.Password != "" {
+		updateSql += ",`password` = ?"
+	}
+	if t.Extra != "" {
+		updateSql += ",extra = ?"
+	}
+	updateSql += " WHERE id = ?"
+
+	stmt, err := pool.GetPool().Prepare(updateSql)
+	if err != nil {
+		log.Printf("更新配置的数据库信息失败==>%v", err)
+	}
+	defer stmt.Close()
+	result, err := stmt.Exec(t.Id, t.Driver, t.Host, t.Port, t.DBName, t.Username, t.Password, t.Extra, t.Id)
+	if err != nil {
+		log.Printf("更新配置的数据库信息失败==>%v", err)
+		return
+	}
+	affected, err = result.RowsAffected()
+	return
 }
 
 // 获取配置的数据库列表
 func (t CodeDB) Get() CodeDB {
 	stmt, err := pool.GetPool().Prepare("SELECT * FROM code_db")
 	if err != nil {
-		log.Panicln(err)
+		log.Printf("获取配置的数据库列表失败==>%v", err)
+		return CodeDB{}
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query()
 	if err != nil {
-		log.Panicln(err)
+		log.Printf("获取配置的数据库列表失败==>%v", err)
+		return CodeDB{}
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -55,12 +115,14 @@ func (t CodeDB) Get() CodeDB {
 func (t CodeDB) List() []CodeDB {
 	stmt, err := pool.GetPool().Prepare("SELECT * FROM code_db")
 	if err != nil {
-		log.Panicln(err)
+		log.Printf("获取配置的数据库列表失败==>%v", err)
+		return nil
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query()
 	if err != nil {
-		log.Panicln(err)
+		log.Printf("获取配置的数据库列表失败==>%v", err)
+		return nil
 	}
 	defer rows.Close()
 	codes := make([]CodeDB, 0)

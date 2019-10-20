@@ -22,7 +22,7 @@ func (g Generator) OpenGeneratorPool() *sql.DB {
 	}
 	db, err := sql.Open(g.DriverName, dataSource)
 	if err != nil {
-		log.Fatalf("获取指定数据库连接失败：%s", err.Error())
+		log.Fatalf("获取指定数据库连接失败：%v", err)
 	}
 	return db
 }
@@ -37,7 +37,7 @@ func (g Generator) ListTable() (tables []Table) {
 	defer stmt.Close()
 	rows, err := stmt.Query(g.DBName)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln(err)
 	}
 	defer rows.Close()
 	for rows.Next() {

@@ -29,7 +29,7 @@ func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
 	temp := template.Must(template.New(TempEntityName).ParseFiles(TempEntity))
 	file, err := utils.CreateFile("./test/" + tableName + ".go")
 	if err != nil {
-		log.Printf("创建 struct 失败==>%s", err.Error())
+		log.Printf("创建 struct 失败==>%v", err)
 		return
 	}
 	defer file.Close()
