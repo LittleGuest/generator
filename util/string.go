@@ -68,3 +68,14 @@ func CreateFile(name string) (file *os.File, err error) {
 	}
 	return
 }
+
+// 判断字符串是否为空
+func IsBlank(str string) bool {
+	if len(str) <= 0 {
+		return true
+	}
+	if str != "" {
+		return false
+	}
+	return true
+}
