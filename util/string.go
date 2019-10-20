@@ -1,4 +1,5 @@
-package utils
+// 字符工具包
+package util
 
 import (
 	"log"

@@ -3,7 +3,7 @@ package generator
 import (
 	"database/sql"
 	"fmt"
-	"generator/utils"
+	"generator/util"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"strings"
@@ -87,9 +87,9 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 		// 转换大小写
 		if globalConfig.CamelCase {
 			if globalConfig.Pascal {
-				tableInfo.CamelName = utils.PascalUtil(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = util.PascalUtil(tableInfo.ColumnName, "_")
 			} else {
-				tableInfo.CamelName = utils.CamelCaseUtil(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = util.CamelCaseUtil(tableInfo.ColumnName, "_")
 			}
 		}
 		// 类型转换

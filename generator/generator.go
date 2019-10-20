@@ -4,7 +4,7 @@
 package generator
 
 import (
-	"generator/utils"
+	"generator/util"
 	"html/template"
 	"log"
 )
@@ -27,14 +27,14 @@ func (g Generator) MultiGenerate() {
 // 创建struct
 func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
 	temp := template.Must(template.New(TempEntityName).ParseFiles(TempEntity))
-	file, err := utils.CreateFile("./test/" + tableName + ".go")
+	file, err := util.CreateFile("./test/" + tableName + ".go")
 	if err != nil {
 		log.Printf("创建 struct 失败==>%v", err)
 		return
 	}
 	defer file.Close()
 	m := make(map[string]interface{})
-	m["tableName"] = utils.PascalUtil(tableName, "_")
+	m["tableName"] = util.PascalUtil(tableName, "_")
 	m["tableInfos"] = tableInfos
 	if err = temp.Execute(file, m); err != nil {
 		log.Fatalln(err)

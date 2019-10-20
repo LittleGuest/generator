@@ -1,4 +1,5 @@
-package tool
+// 时间工具包
+package util
 
 import (
 	"strings"
@@ -6,21 +7,21 @@ import (
 )
 
 const (
-	dateTimeStr = "2006-01-02 15:04:05"
-	dateStr     = "20060102"
+	DateTimeStr = "2006-01-02 15:04:05"
+	DateStr     = "20060102"
 )
 
 // 格式化时间
 func FormatDate(t time.Time) string {
-	return t.Format(dateStr)
+	return t.Format(DateStr)
 }
 
 func FormatDateTime(t time.Time) string {
-	return t.Format(dateTimeStr)
+	return t.Format(DateTimeStr)
 }
 
 // 时间字符串转时间
 func StringToTime(timeStr string) (time.Time, error) {
 	timeStr = strings.Replace(timeStr, "+", "", -1)
-	return time.Parse(dateTimeStr, timeStr)
+	return time.Parse(DateTimeStr, timeStr)
 }
