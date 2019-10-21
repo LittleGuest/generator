@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
+	"os/exec"
 	"time"
 )
 
@@ -23,11 +24,14 @@ func init() {
 
 func main() {
 	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
-	// TODO 调用浏览器打开页面
-	//if open {
-	//	cmd := exec.Command("cmd", "/C", "start http://localhost:65535")
-	//	log.Println(cmd.Run())
-	//}
+
+	s := config.GetServer()
+	log.Printf("run at %s:%d", s.Host, s.Port)
+
+	if open {
+		cmd := exec.Command("cmd", "/C", fmt.Sprintf("start http://%s:%d", s.Host, s.Port))
+		log.Println(cmd.Run())
+	}
 
 	// 初始化路由
 	router := mux.NewRouter()
@@ -43,9 +47,6 @@ func main() {
 
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
-
-	s := config.GetServer()
-	log.Printf("run at %s:%d", s.Host, s.Port)
 
 	server := &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", s.Host, s.Port),
