@@ -22,7 +22,7 @@ func (g Generator) OpenGeneratorPool() *sql.DB {
 	}
 	db, err := sql.Open(g.DriverName, dataSource)
 	if err != nil {
-		log.Fatalf("获取指定数据库连接失败：%v", err)
+		log.Panicf("获取指定数据库连接失败：%v", err)
 	}
 	return db
 }
@@ -44,7 +44,7 @@ func (g Generator) ListTable(tableNames string) (tables []Table) {
 		rows, err = stmt.Query(tableNames)
 	}
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -64,12 +64,12 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.CHARACTER_MAXIMUM_LENGTH,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
 	stmt, err := g.OpenGeneratorPool().Prepare(tableInfoSql)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(g.DBName, tableName)
 	if err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 	defer rows.Close()
 	for rows.Next() {

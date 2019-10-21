@@ -46,7 +46,7 @@ func Code2Session(code string) []byte {
 		"appid=" + appId + "&secret=" + appSecret + "&js_code=" + code + "&grant_type=" + grantType
 	resp, err := http.Get(url)
 	if err != nil {
-		log.Fatalln("http get 请求失败", err)
+		log.Panicln("http get 请求失败", err)
 	}
 	res, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

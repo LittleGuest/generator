@@ -17,7 +17,7 @@ func GetPool() *sql.DB {
 	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", dataBase.Username, dataBase.Password, dataBase.Host, dataBase.Port, dataBase.DBName)
 	db, err := sql.Open(dataBase.Driver, dataSource)
 	if err != nil {
-		log.Fatalf("获取数据库连接失败：%v", err)
+		log.Panicf("获取数据库连接失败：%v", err)
 	}
 	return db
 }

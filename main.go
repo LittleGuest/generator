@@ -39,13 +39,8 @@ func main() {
 	router.Use(middle.CorsHandler, middle.RequestTimeHandler)
 
 	// 路由
-	router.HandleFunc("/api/v1/login", service.Login).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/users", service.GetUserInfo).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/db", service.GetCodeDB).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/db", service.SaveCodeDB).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/db/list", service.ListCodeDB).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodPost)
+	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/zip", func(w http.ResponseWriter, r *http.Request) {
 		// 读zip
 		//rc, err := zip.OpenReader("./test.zip")

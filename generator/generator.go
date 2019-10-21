@@ -35,7 +35,7 @@ func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
 	m["tableName"] = util.PascalUtil(tableName, "_")
 	m["tableInfos"] = tableInfos
 	if err = temp.Execute(file, m); err != nil {
-		log.Fatalln(err)
+		log.Panicln(err)
 	}
 }
 
