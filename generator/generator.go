@@ -4,47 +4,57 @@
 package generator
 
 import (
+	"archive/zip"
 	"generator/util"
 	"html/template"
 	"log"
+	"os"
 )
 
 // 单表生成
 func (g Generator) SingleGenerate(tableName string) {
-	// 获取表信息
+	zipFile, err := os.Create("code.zip")
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer zipFile.Close()
+	zw := zip.NewWriter(zipFile)
+	defer zw.Close()
+
 	tableInfos := g.GetTableInfo(tableName)
-	g.CreateStruct(tableName, tableInfos)
+	g.CreateStruct(zw, tableName, tableInfos)
 }
 
 // 多表生成
 func (g Generator) MultiGenerate(tableNames string) {
+	zipFile, err := os.Create("code.zip")
+	if err != nil {
+		log.Panicln(err)
+	}
+	defer zipFile.Close()
+	zw := zip.NewWriter(zipFile)
+	defer zw.Close()
+
 	listTables := g.ListTable(tableNames)
-	g.Run(listTables)
+	//go func(zw *zip.Writer) {
+	for _, v := range listTables {
+		tableInfos := g.GetTableInfo(v.Name)
+		g.CreateStruct(zw, v.Name, tableInfos)
+	}
+	//}(zw)
 }
 
 // 创建struct
-func (g *Generator) CreateStruct(tableName string, tableInfos []TableInfo) {
+func (g *Generator) CreateStruct(zw *zip.Writer, tableName string, tableInfos []TableInfo) {
 	temp := template.Must(template.New(TempEntityName).ParseFiles(TempEntity))
-	file, err := util.CreateFile("./test/" + tableName + ".go")
+	fw, err := zw.Create(tableName + ".go")
 	if err != nil {
-		log.Printf("创建 struct 失败==>%v", err)
-		return
+		log.Panicln(err)
 	}
-	defer file.Close()
 	m := make(map[string]interface{})
 	m["tableName"] = util.PascalUtil(tableName, "_")
 	m["tableInfos"] = tableInfos
-	if err = temp.Execute(file, m); err != nil {
+	if err = temp.Execute(fw, m); err != nil {
 		log.Panicln(err)
 	}
-}
-
-// 代码生成启动
-func (g *Generator) Run(table []Table) {
-	go func() {
-		for _, v := range table {
-			tableInfos := g.GetTableInfo(v.Name)
-			g.CreateStruct(v.Name, tableInfos)
-		}
-	}()
 }

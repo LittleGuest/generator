@@ -42,8 +42,8 @@
                     <el-button @click="addExtra()">新增</el-button>
                 </el-form-item>
                 <el-form-item label="是否单表" :label-width="label_width">
-                    <el-radio v-model="dbForm.single" :label="0">多表</el-radio>
-                    <el-radio v-model="dbForm.single" :label="1">单表</el-radio>
+                    <el-radio v-model="dbForm.single" :label="false">多表</el-radio>
+                    <el-radio v-model="dbForm.single" :label="true">单表</el-radio>
                 </el-form-item>
                 <el-form-item label="表" :label-width="label_width">
                     <el-select v-model="dbForm.table_names" multiple filterable placeholder="请选择表,(多表默认所有表)"
@@ -83,7 +83,7 @@
                     username: "root",
                     password: "root",
                     extras: [],
-                    single: 0,
+                    single: false,
                     table_names: [],
                 },
                 options: [],
@@ -173,12 +173,11 @@
             generate() {
                 this.loading = true
                 axios.post('api/v1/generate', this.dbForm).then(resp => {
-                    console.log('resp==', resp)
+                    this.loading = false
                 }).catch(resp => {
                     this.loading = false
                     this.$message.error('生成失败')
                 })
-                this.loading = false
             }
         }
     });
