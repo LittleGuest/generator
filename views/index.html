@@ -11,32 +11,32 @@
 <body>
 <div id="app">
     <el-container>
-        <el-main>
+        <el-main style="display: flex;justify-content: center;" v-loading="loading">
             <el-form ref="dbForm" :model="dbForm" :rules="dbFormRules">
                 <el-form-item label="驱动" :label-width="label_width" prop="driver">
-                    <el-input v-model="dbForm.driver" type="text" placeholder="请输入驱动名称"/>
+                    <el-input v-model="dbForm.driver" type="text" placeholder="请输入驱动名称" clearable disabled/>
                 </el-form-item>
                 <el-form-item label="主机" :label-width="label_width" prop="host">
-                    <el-input v-model="dbForm.host" placeholder="请输入主机"/>
+                    <el-input v-model="dbForm.host" placeholder="请输入主机" clearable/>
                 </el-form-item>
                 <el-form-item label="端口号" :label-width="label_width" prop="port">
-                    <el-input v-model="dbForm.port" placeholder="请输入端口号"/>
+                    <el-input v-model="dbForm.port" placeholder="请输入端口号" clearable/>
                 </el-form-item>
                 <el-form-item label="数据库名称" :label-width="label_width" prop="db_name">
-                    <el-input v-model="dbForm.db_name" placeholder="请输入数据库名称"/>
+                    <el-input v-model="dbForm.db_name" placeholder="请输入数据库名称" clearable/>
                 </el-form-item>
                 <el-form-item label="用户名" :label-width="label_width" prop="username">
-                    <el-input v-model="dbForm.username" placeholder="请输入用户名"/>
+                    <el-input v-model="dbForm.username" placeholder="请输入用户名" clearable/>
                 </el-form-item>
                 <el-form-item label="密码" :label-width="label_width" prop="password">
-                    <el-input v-model="dbForm.password" placeholder="请输入密码" show-password/>
+                    <el-input v-model="dbForm.password" placeholder="请输入密码" show-password clearable/>
                 </el-form-item>
 
                 <el-form-item label="额外参数" :label-width="label_width">
                     <el-form-item v-for="ext in dbForm.extras" :key="ext.index"
                                   :rules="{required: true, message: '键值不能为空', trigger: 'blur'}">
-                        <el-input v-model="ext.key" placeholder="键" style="width: 30%"/>
-                        <el-input v-model="ext.value" placeholder="值" style="width: 30%"/>
+                        <el-input v-model="ext.key" placeholder="键" clearable style="width: 30%"/>
+                        <el-input v-model="ext.value" placeholder="值" clearable style="width: 30%"/>
                         <el-button @click.prevent="removeExtra(ext)">删除</el-button>
                     </el-form-item>
                     <el-button @click="addExtra()">新增</el-button>
@@ -66,13 +66,14 @@
 </div>
 </body>
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
 <script>
     var app = new Vue({
         el: "#app",
         data() {
             return {
+                loading: false,
                 label_width: "100px",
                 dbForm: {
                     driver: "mysql",
@@ -137,9 +138,22 @@
                 this.options = resp.data.data;
             });
         },
+        computed: {
+            newDBName() {
+                return this.dbForm.db_name
+            }
+        },
+        watch: {
+            newDBName(new_db_name, old) {
+                setTimeout(() => {
+                    axios.post('api/v1/db/tables', this.dbForm).then(resp => {
+                        this.options = resp.data.data;
+                    });
+                }, 2000)
+            }
+        },
         methods: {
             resetForm(formName) {
-                console.log(this.$refs[formName])
                 this.$refs[formName].resetFields();
                 this.dbForm.extras = [];
             },
@@ -155,13 +169,16 @@
                     key: "",
                     value: ""
                 });
-                console.log(this.dbForm.extras)
             },
             generate() {
-                // this.dbForm.table_names.join(",")
+                this.loading = true
                 axios.post('api/v1/generate', this.dbForm).then(resp => {
                     console.log('resp==', resp)
+                }).catch(resp => {
+                    this.loading = false
+                    this.$message.error('生成失败')
                 })
+                this.loading = false
             }
         }
     });

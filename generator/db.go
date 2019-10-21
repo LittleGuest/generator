@@ -40,8 +40,7 @@ func (g Generator) ListTable(tableNames string) (tables []Table) {
 	defer stmt.Close()
 	rows, err := stmt.Query(g.DBName)
 	if tableNames != "" {
-		log.Println(tablesSql)
-		rows, err = stmt.Query(tableNames)
+		rows, err = stmt.Query(g.DBName, tableNames)
 	}
 	if err != nil {
 		log.Panicln(err)

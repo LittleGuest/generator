@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type CodeDB struct {
@@ -27,7 +28,7 @@ type CodeDB struct {
 	// 是否单表
 	Single int64 `json:"single"`
 	// 指定表
-	TableNames string `json:"table_names"`
+	TableNames []string `json:"table_names"`
 }
 
 // 获取指定数据库的表
@@ -37,7 +38,6 @@ func ListTables(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(bytes, &codeDB)
 	log.Println(codeDB)
 
-	// 获取配置的数据库信息
 	g := generator.Generator{
 		DBConfig: generator.DBConfig{
 			DriverName: codeDB.Driver,
@@ -57,14 +57,6 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 	bytes, _ := ioutil.ReadAll(r.Body)
 	_ = json.Unmarshal(bytes, &codeDB)
 
-	//single, err := strconv.Atoi(r.URL.Query().Get("single"))
-	//if err != nil {
-	//	log.Println(err)
-	//	response.Error(w, 1, err.Error())
-	//	return
-	//}
-	//tableNames := r.URL.Query().Get("table_names")
-
 	// TODO 文件输出到浏览器，打包下载
 
 	g := generator.Generator{
@@ -81,16 +73,21 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 	switch codeDB.Single {
 	case 0:
 		// 多表
-		g.MultiGenerate(codeDB.TableNames)
+		g.MultiGenerate(strings.Join(codeDB.TableNames, ","))
 		response.Success(w, "成功")
 	case 1:
 		// 单表
-		if codeDB.TableNames == "" {
+		if len(codeDB.TableNames) <= 0 {
 			response.Error(w, 1, "table_name必填")
 			return
 		}
 
-		g.SingleGenerate(codeDB.TableNames)
+		if len(codeDB.TableNames) > 1 {
+			g.SingleGenerate(codeDB.TableNames[0])
+		} else {
+			g.SingleGenerate(strings.Join(codeDB.TableNames, ","))
+		}
+
 		response.Success(w, codeDB)
 	default:
 		// 无
