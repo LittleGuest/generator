@@ -23,8 +23,6 @@ func init() {
 }
 
 func main() {
-	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
-
 	s := config.GetServer()
 	log.Printf("run at %s:%d", s.Host, s.Port)
 
