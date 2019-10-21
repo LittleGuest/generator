@@ -5,7 +5,9 @@ import (
 	"generator/generator"
 	"generator/response"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -84,5 +86,19 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 		// 无
 		response.Error(w, 1, "无此类型")
 	}
+}
 
+func Download(w http.ResponseWriter, r *http.Request) {
+	bytes, _ := ioutil.ReadFile("code.zip")
+	w.Header().Set("Content-Disposition", "attachment;filename=generate.zip")
+	_, _ = w.Write(bytes)
+}
+
+func Remove(w http.ResponseWriter, r *http.Request) {
+	if err := os.Remove("code.zip"); err != nil {
+		log.Println(err)
+		response.Error(w, 1, "删除失败")
+		return
+	}
+	response.Success(w, nil)
 }

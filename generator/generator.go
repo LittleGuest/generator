@@ -35,13 +35,18 @@ func (g Generator) MultiGenerate(tableNames string) {
 	zw := zip.NewWriter(zipFile)
 	defer zw.Close()
 
+	done := make(chan bool, 0)
 	listTables := g.ListTable(tableNames)
-	//go func(zw *zip.Writer) {
-	for _, v := range listTables {
-		tableInfos := g.GetTableInfo(v.Name)
-		g.CreateStruct(zw, v.Name, tableInfos)
+	go func(zw *zip.Writer) {
+		for _, v := range listTables {
+			tableInfos := g.GetTableInfo(v.Name)
+			g.CreateStruct(zw, v.Name, tableInfos)
+		}
+		done <- true
+	}(zw)
+	select {
+	case <-done:
 	}
-	//}(zw)
 }
 
 // 创建struct

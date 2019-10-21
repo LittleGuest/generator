@@ -1,17 +1,14 @@
 package main
 
 import (
-	"archive/zip"
 	"flag"
 	"fmt"
 	"generator/config"
 	"generator/middleware"
 	"generator/service"
 	"github.com/gorilla/mux"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -41,55 +38,8 @@ func main() {
 	// 路由
 	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/zip", func(w http.ResponseWriter, r *http.Request) {
-		// 读zip
-		//rc, err := zip.OpenReader("./test.zip")
-		//if err != nil {
-		//	log.Println(err)
-		//	return
-		//}
-		//defer rc.Close()
-		//log.Println(rc.Comment)
-		//log.Println(rc.File)
-
-		log.Println("=======================================")
-		zipFile, err := os.Create("test.zip")
-		if err != nil {
-			log.Panicln(err)
-		}
-		defer zipFile.Close()
-		zw := zip.NewWriter(zipFile)
-		defer zw.Close()
-
-		//fileInfos, err := ioutil.ReadDir(`D:\coding\workspaces\gopher-go`)
-		//for _, file := range fileInfos {
-		//	fw, err := zw.Create(file.Name())
-		//	if err != nil {
-		//		log.Println(err)
-		//		return
-		//	}
-		//
-		//	_, err = fw.Write()
-		//	if err != nil {
-		//		log.Println(err)
-		//		return
-		//	}
-		//}
-
-		bytes, err := ioutil.ReadFile(`D:\coding\workspaces\generator\main.go`)
-		if err != nil {
-			log.Panic(err)
-		}
-		fw, err := zw.Create("main.go")
-		if err != nil {
-			log.Panic(err)
-		}
-		_, _ = fw.Write(bytes)
-		w.Header().Set("Content-Disposition", "attachment;filename=test.zip")
-		//w.Header().Set("Content-Type", "application/octet-stream")
-		out, _ := ioutil.ReadFile("test.zip")
-		w.Write(out)
-	}).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/download", service.Download).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/remove", service.Remove).Methods(http.MethodPut)
 
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))

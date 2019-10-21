@@ -59,6 +59,7 @@
                 <el-form-item :label-width="label_width">
                     <el-button @click="resetForm('dbForm')">重置</el-button>
                     <el-button @click="generate()">生成</el-button>
+                    <el-button v-if="download" @click="downloadFile()">下载</el-button>
                 </el-form-item>
             </el-form>
         </el-main>
@@ -75,6 +76,7 @@
             return {
                 loading: false,
                 label_width: "100px",
+                download: false,
                 dbForm: {
                     driver: "mysql",
                     host: "localhost",
@@ -134,7 +136,7 @@
             };
         },
         mounted() {
-            axios.post('api/v1/db/tables', this.dbForm).then(resp => {
+            axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
                 this.options = resp.data.data;
             });
         },
@@ -146,7 +148,7 @@
         watch: {
             newDBName(new_db_name, old) {
                 setTimeout(() => {
-                    axios.post('api/v1/db/tables', this.dbForm).then(resp => {
+                    axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
                         this.options = resp.data.data;
                     });
                 }, 2000)
@@ -172,12 +174,16 @@
             },
             generate() {
                 this.loading = true
-                axios.post('api/v1/generate', this.dbForm).then(resp => {
+                axios.post('/api/v1/generate', this.dbForm).then(resp => {
                     this.loading = false
+                    this.download = true
                 }).catch(resp => {
                     this.loading = false
                     this.$message.error('生成失败')
                 })
+            },
+            downloadFile() {
+                window.location.href = '/api/v1/download'
             }
         }
     });
