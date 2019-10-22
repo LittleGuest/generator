@@ -1,16 +1,16 @@
-package test
+package model
 
 import (
     "time"
 )
 
-type {{.tableName}} struct {
+type {{.structName}} struct {
 {{range $k, $v := .tableInfos}}
     // {{.ColumnComment}}
     {{$v.CamelName}} {{$v.GoType}} `json:"{{$v.ColumnName}}"`
 {{end}}
 }
 
-func (e {{.tableName}}) TableName() string {
+func (t {{.tableName}}) TableName() string {
     return "{{.tableName}}"
 }

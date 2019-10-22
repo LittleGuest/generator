@@ -46,7 +46,7 @@ func ListTables(w http.ResponseWriter, r *http.Request) {
 			Username:   codeDB.Username,
 			Password:   codeDB.Password,
 			DBName:     codeDB.DBName,
-			// TODO Extra:      codeDB.Extra,
+			// Extra:      codeDB.Extra,
 		},
 	}
 	response.Success(w, g.ListTable(""))
@@ -80,7 +80,6 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		g.SingleGenerate(codeDB.TableNames[0])
-		// TODO 文件输出到浏览器，打包下载
 		response.Success(w, codeDB)
 	default:
 		// 无
@@ -90,7 +89,7 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 
 func Download(w http.ResponseWriter, r *http.Request) {
 	bytes, _ := ioutil.ReadFile("code.zip")
-	w.Header().Set("Content-Disposition", "attachment;filename=generate.zip")
+	w.Header().Set("Content-Disposition", "attachment;filename=code.zip")
 	_, _ = w.Write(bytes)
 }
 

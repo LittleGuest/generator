@@ -11,7 +11,7 @@
 <body>
 <div id="app">
     <el-container>
-        <el-main style="display: flex;justify-content: center;" v-loading="loading">
+        <el-main v-loading="loading">
             <el-form ref="dbForm" :model="dbForm" :rules="dbFormRules">
                 <el-form-item label="驱动" :label-width="label_width" prop="driver">
                     <el-input v-model="dbForm.driver" type="text" placeholder="请输入驱动名称" clearable disabled/>
@@ -202,6 +202,8 @@
                 axios.put('/api/v1/remove').then(resp => {
                     this.loading = false
                     this.$message({message: '删除成功', type: 'success'})
+                    this.download = false
+                    this.remove = false
                 }).catch(resp => {
                     this.$message.error('删除失败')
                 })

@@ -1,4 +1,4 @@
-// TODO 解析json文件
+// 解析json配置文件
 package config
 
 import (

@@ -57,7 +57,8 @@ func (g *Generator) CreateStruct(zw *zip.Writer, tableName string, tableInfos []
 		log.Panicln(err)
 	}
 	m := make(map[string]interface{})
-	m["tableName"] = util.PascalUtil(tableName, "_")
+	m["tableName"] = tableName
+	m["structName"] = util.PascalUtil(tableName, "_")
 	m["tableInfos"] = tableInfos
 	if err = temp.Execute(fw, m); err != nil {
 		log.Panicln(err)
