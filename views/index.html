@@ -60,6 +60,7 @@
                     <el-button @click="resetForm('dbForm')">重置</el-button>
                     <el-button @click="generate()">生成</el-button>
                     <el-button v-if="download" @click="downloadFile()">下载</el-button>
+                    <el-button v-if="remove" @click="removeFile()">删除</el-button>
                 </el-form-item>
             </el-form>
         </el-main>
@@ -77,6 +78,7 @@
                 loading: false,
                 label_width: "100px",
                 download: false,
+                remove: false,
                 dbForm: {
                     driver: "mysql",
                     host: "localhost",
@@ -184,7 +186,16 @@
             },
             downloadFile() {
                 window.location.href = '/api/v1/download'
-            }
+                this.remove = true
+            },
+            removeFile() {
+                this.loading = true
+                axios.put('/api/v1/remove').then(resp => {
+                    this.loading = false
+                }).catch(resp => {
+                    this.$message.error('删除失败')
+                })
+            },
         }
     });
 </script>
