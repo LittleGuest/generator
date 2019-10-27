@@ -25,7 +25,7 @@ func main() {
 	log.Println("run at :65535")
 
 	if open {
-		cmd := exec.Command("cmd", "/C", fmt.Sprintf("start http://%s:%d", s.Host, s.Port))
+		cmd := exec.Command("cmd", "/C", fmt.Sprintf("start http://localhost:63335"))
 		log.Println(cmd.Run())
 	}
 
