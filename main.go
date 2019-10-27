@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"generator/config"
 	"generator/middleware"
 	"generator/service"
 	"github.com/gorilla/mux"
@@ -23,8 +22,7 @@ func init() {
 }
 
 func main() {
-	s := config.GetServer()
-	log.Printf("run at %s:%d", s.Host, s.Port)
+	log.Println("run at :65535")
 
 	if open {
 		cmd := exec.Command("cmd", "/C", fmt.Sprintf("start http://%s:%d", s.Host, s.Port))
@@ -47,10 +45,10 @@ func main() {
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 
 	server := &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", s.Host, s.Port),
+		Addr:         fmt.Sprintf(":65535"),
 		Handler:      router,
-		ReadTimeout:  time.Second * s.ReadTimeout,
-		WriteTimeout: time.Second * s.ReadTimeout,
+		ReadTimeout:  time.Second * 60,
+		WriteTimeout: time.Second * 60,
 	}
 	log.Fatalln(server.ListenAndServe())
 }

@@ -3,19 +3,25 @@ package pool
 import (
 	"database/sql"
 	"fmt"
-	"generator/config"
 	"log"
 )
 
-var pool *sql.DB
+var (
+	pool     *sql.DB
+	driver   = "mysql"
+	host     = "localhost"
+	port     = 3306
+	dbName   = "blog"
+	username = "root"
+	password = "root"
+	extras   = "?charset=UTF8&parseTime=true"
+)
 
 func GetPool() *sql.DB {
 	if pool != nil {
 		return pool
 	}
-	dataBase := config.GetDataBase()
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", dataBase.Username, dataBase.Password, dataBase.Host, dataBase.Port, dataBase.DBName)
-	db, err := sql.Open(dataBase.Driver, dataSource)
+	db, err := sql.Open(driver, fmt.Sprintf("%s:%s@(%s:%d)/%s%s", username, password, host, port, dbName, extras))
 	if err != nil {
 		log.Panicf("获取数据库连接失败：%v", err)
 	}
