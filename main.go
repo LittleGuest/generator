@@ -1,14 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"generator/middleware"
 	"generator/service"
 	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"os/exec"
 	"time"
 )
 
@@ -16,18 +14,8 @@ var (
 	open bool
 )
 
-func init() {
-	flag.BoolVar(&open, "o", true, "open with browser")
-	flag.Parse()
-}
-
 func main() {
 	log.Println("run at :65535")
-
-	if open {
-		cmd := exec.Command("cmd", "/C", fmt.Sprintf("start http://localhost:63335"))
-		log.Println(cmd.Run())
-	}
 
 	// 初始化路由
 	router := mux.NewRouter()
