@@ -10,10 +10,6 @@ import (
 	"time"
 )
 
-var (
-	open bool
-)
-
 func main() {
 	log.Println("run at :65535")
 
