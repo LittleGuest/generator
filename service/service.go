@@ -91,13 +91,10 @@ func Download(w http.ResponseWriter, r *http.Request) {
 	bytes, _ := ioutil.ReadFile("code.zip")
 	w.Header().Set("Content-Disposition", "attachment;filename=code.zip")
 	_, _ = w.Write(bytes)
-}
 
-func Remove(w http.ResponseWriter, r *http.Request) {
 	if err := os.Remove("code.zip"); err != nil {
 		log.Println(err)
 		response.Error(w, 1, "删除失败")
 		return
 	}
-	response.Success(w, nil)
 }

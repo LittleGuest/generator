@@ -23,7 +23,6 @@ func main() {
 	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodPost)
 	router.HandleFunc("/api/v1/download", service.Download).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/remove", service.Remove).Methods(http.MethodPut)
 
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
