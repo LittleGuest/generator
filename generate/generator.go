@@ -1,7 +1,7 @@
 // 代码生成器：
 // 获取配置的数据库的所有表，从 information_schema.tables 获取
 // 获取表字段信息, 从 information_schema.columns 获取
-package generator
+package generate
 
 import (
 	"archive/zip"

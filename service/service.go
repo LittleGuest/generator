@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"generator/generator"
+	"generator/generate"
 	"generator/response"
 	"io/ioutil"
 	"log"
@@ -38,8 +38,8 @@ func ListTables(w http.ResponseWriter, r *http.Request) {
 	bytes, _ := ioutil.ReadAll(r.Body)
 	_ = json.Unmarshal(bytes, &codeDB)
 
-	g := generator.Generator{
-		DBConfig: generator.DBConfig{
+	g := generate.Generator{
+		DBConfig: generate.DBConfig{
 			DriverName: codeDB.Driver,
 			Host:       codeDB.Host,
 			Port:       codeDB.Port,
@@ -57,8 +57,8 @@ func Generate(w http.ResponseWriter, r *http.Request) {
 	bytes, _ := ioutil.ReadAll(r.Body)
 	_ = json.Unmarshal(bytes, &codeDB)
 
-	g := generator.Generator{
-		DBConfig: generator.DBConfig{
+	g := generate.Generator{
+		DBConfig: generate.DBConfig{
 			DriverName: codeDB.Driver,
 			Host:       codeDB.Host,
 			Port:       codeDB.Port,

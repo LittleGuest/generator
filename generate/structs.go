@@ -1,4 +1,4 @@
-package generator
+package generate
 
 type Generator struct {
 	GlobalConfig
