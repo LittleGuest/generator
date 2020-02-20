@@ -1,4 +1,5 @@
-package response
+// 响应信息封装
+package resp
 
 import (
 	"encoding/json"
@@ -6,7 +7,7 @@ import (
 	"net/http"
 )
 
-// 分页信息
+// PageInfo 分页信息
 type PageInfo struct {
 	Curr  int64       `json:"curr"`
 	Size  int64       `json:"size"`
@@ -14,7 +15,7 @@ type PageInfo struct {
 	Data  interface{} `json:"data"`
 }
 
-// 返回成功信息
+// Success 返回成功信息
 func Success(w http.ResponseWriter, data interface{}) {
 	m := make(map[string]interface{})
 	m["code"] = 0
@@ -27,7 +28,7 @@ func Success(w http.ResponseWriter, data interface{}) {
 	_, _ = w.Write(jsonData)
 }
 
-// 返回错误信息
+// Error 返回错误信息
 func Error(w http.ResponseWriter, code int64, msg string) {
 	m := make(map[string]interface{})
 	m["code"] = code
@@ -40,7 +41,7 @@ func Error(w http.ResponseWriter, code int64, msg string) {
 	_, _ = w.Write(jsonData)
 }
 
-// 返回分页成功信息
+// Page 返回分页成功信息
 func Page(w http.ResponseWriter, page PageInfo) {
 	m := make(map[string]interface{})
 	m["code"] = 0

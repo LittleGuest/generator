@@ -13,10 +13,4 @@ func (t {{.structName}}) TableName() string {
     return "{{.tableName}}"
 }
 
-func (t {{.structName}}) String() string {
-    resp,err := json.Marshal(t)
-    if err != nil {
-        return ""
-    }
-    return string(resp)
-}
+

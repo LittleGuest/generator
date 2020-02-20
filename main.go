@@ -1,15 +1,15 @@
 package main
 
 import (
-	"fmt"
 	"generator/service"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
-// 记录请求时间
+// RequestTimeHandler 记录请求时间
 func RequestTimeHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
@@ -19,7 +19,7 @@ func RequestTimeHandler(handler http.Handler) http.Handler {
 	})
 }
 
-// 设置跨域请求
+// CorsHandler 设置跨域请求
 func CorsHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// 允许所有的请求
@@ -35,8 +35,6 @@ func CorsHandler(handler http.Handler) http.Handler {
 }
 
 func main() {
-	log.Println("run at :65535")
-
 	// 初始化路由
 	router := mux.NewRouter()
 	// 启用中间件
@@ -44,14 +42,15 @@ func main() {
 
 	// 路由
 	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/generate", service.Generate).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/download", service.Download).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/create", service.Create).Methods(http.MethodGet)
 
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
 
+	log.Println("run at :65535")
+
 	server := &http.Server{
-		Addr:         fmt.Sprintf(":65535"),
+		Addr:         ":65535",
 		Handler:      router,
 		ReadTimeout:  time.Second * 60,
 		WriteTimeout: time.Second * 60,

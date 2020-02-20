@@ -41,10 +41,6 @@
                     </el-form-item>
                     <el-button @click="addExtra()">新增</el-button>
                 </el-form-item>
-                <el-form-item label="是否单表" :label-width="label_width">
-                    <el-radio v-model="dbForm.single" :label="false">多表</el-radio>
-                    <el-radio v-model="dbForm.single" :label="true">单表</el-radio>
-                </el-form-item>
                 <el-form-item label="表" :label-width="label_width">
                     <el-select v-model="dbForm.table_names" multiple filterable placeholder="请选择表,(多表默认所有表)"
                                style="width:250px">
@@ -77,13 +73,12 @@
                 label_width: "100px",
                 dbForm: {
                     driver: "mysql",
-                    host: "localhost",
-                    port: 3306,
-                    db_name: "guest.org.cn",
+                    host: "127.0.0.1",
+                    port: "3306",
+                    db_name: "",
                     username: "root",
                     password: "root",
                     extras: [],
-                    single: false,
                     table_names: [],
                 },
                 options: [],
@@ -173,14 +168,15 @@
             generate(formName) {
                 this.$refs[formName].validate((valid) => {
                     if (valid) {
-                        this.loading = true
-                        axios.post('/api/v1/generate', this.dbForm).then(resp => {
-                            this.loading = false
-                            window.location.href = '/api/v1/download'
-                        }).catch(resp => {
-                            this.loading = false
-                            this.$message.error('生成失败')
-                        })
+                        window.location.href = '/api/v1/create?' +
+                            'driver=' + this.dbForm.driver +
+                            '&username=' + this.dbForm.username +
+                            '&password=' + this.dbForm.password +
+                            '&host=' + this.dbForm.host +
+                            '&port=' + this.dbForm.port +
+                            '&db_name=' + this.dbForm.db_name +
+                            '&extras=' + this.dbForm.extras +
+                            '&table_names=' + this.dbForm.table_names.join(",")
                     } else {
                         return false;
                     }

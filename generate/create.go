@@ -5,28 +5,15 @@ package generate
 
 import (
 	"archive/zip"
-	"generator/util"
 	"html/template"
 	"log"
 	"os"
+
+	"github.com/LittleGuest/tool"
 )
 
-// 单表生成
-func (g Generator) SingleGenerate(tableName string) {
-	zipFile, err := os.Create("code.zip")
-	if err != nil {
-		log.Panicln(err)
-	}
-	defer zipFile.Close()
-	zw := zip.NewWriter(zipFile)
-	defer zw.Close()
-
-	tableInfos := g.GetTableInfo(tableName)
-	g.CreateStruct(zw, tableName, tableInfos)
-}
-
-// 多表生成
-func (g Generator) MultiGenerate(tableNames string) {
+// Create 生成代码
+func Create(driver string, dbName string, tableNames string) {
 	zipFile, err := os.Create("code.zip")
 	if err != nil {
 		log.Panicln(err)
@@ -36,21 +23,19 @@ func (g Generator) MultiGenerate(tableNames string) {
 	defer zw.Close()
 
 	done := make(chan bool, 0)
-	listTables := g.ListTable(tableNames)
+	listTables := ListTable(dbName, tableNames)
 	go func(zw *zip.Writer) {
 		for _, v := range listTables {
-			tableInfos := g.GetTableInfo(v.Name)
-			g.CreateStruct(zw, v.Name, tableInfos)
+			tableInfos := GetTableInfo(driver,dbName, v.Name)
+			CreateStruct(zw, v.Name, tableInfos)
 		}
 		done <- true
 	}(zw)
-	select {
-	case <-done:
-	}
+	<-done
 }
 
-// 创建struct
-func (g *Generator) CreateStruct(zw *zip.Writer, tableName string, tableInfos []TableInfo) {
+// CreateStruct 生成struct
+func CreateStruct(zw *zip.Writer, tableName string, tableInfos []TableFieldInfo) {
 	temp := template.Must(template.New(TempEntityName).ParseFiles(TempEntity))
 	fw, err := zw.Create(tableName + ".go")
 	if err != nil {
@@ -58,7 +43,7 @@ func (g *Generator) CreateStruct(zw *zip.Writer, tableName string, tableInfos []
 	}
 	m := make(map[string]interface{})
 	m["tableName"] = tableName
-	m["structName"] = util.PascalUtil(tableName, "_")
+	m["structName"] = tool.ToPascal(tableName, "_")
 	m["tableInfos"] = tableInfos
 	if err = temp.Execute(fw, m); err != nil {
 		log.Panicln(err)

@@ -1,53 +1,33 @@
 package generate
 
 import (
-	"database/sql"
-	"fmt"
-	"generator/util"
-	_ "github.com/go-sql-driver/mysql"
+	"generator/database"
+	"github.com/LittleGuest/tool"
 	"log"
 	"strings"
 )
 
-var generatorPool *sql.DB
-
-// 获取指定数据库连接
-func (g Generator) OpenGeneratorPool() *sql.DB {
-	if generatorPool != nil {
-		return generatorPool
-	}
-	dataSource := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", g.Username, g.Password, g.Host, g.Port, g.DBName)
-	if g.Extra != "" {
-		dataSource += fmt.Sprintf("?%s", g.Extra)
-	}
-	db, err := sql.Open(g.DriverName, dataSource)
-	if err != nil {
-		log.Panicf("获取指定数据库连接失败：%v", err)
-	}
-	return db
-}
-
-// 获取指定数据库中所有表信息
-func (g Generator) ListTable(tableNames string) (tables []Table) {
+// ListTable 获取指定数据库中所有表信息
+func ListTable(dbName string, tableNames string) (tables []TableInfo) {
 	tablesSql := "SELECT t.TABLE_NAME,t.TABLE_COMMENT FROM information_schema.`TABLES` t WHERE t.TABLE_SCHEMA = ?"
 	if tableNames != "" {
 		tablesSql += " AND FIND_IN_SET(t.TABLE_NAME, ?)"
 	}
-	stmt, err := g.OpenGeneratorPool().Prepare(tablesSql)
+	stmt, err := database.DB.Prepare(tablesSql)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query(g.DBName)
+	rows, err := stmt.Query(dbName)
 	if tableNames != "" {
-		rows, err = stmt.Query(g.DBName, tableNames)
+		rows, err = stmt.Query(dbName, tableNames)
 	}
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		table := Table{}
+		table := TableInfo{}
 		err = rows.Scan(&table.Name, &table.Comment)
 		if err != nil {
 			log.Println(err)
@@ -58,21 +38,21 @@ func (g Generator) ListTable(tableNames string) (tables []Table) {
 	return
 }
 
-// 获取指定数据库中指定表字段信息
-func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
+// GetTableInfo 获取指定数据库中指定表字段信息
+func GetTableInfo(driver string, dbName string, tableName string) (tableInfos []TableFieldInfo) {
 	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.CHARACTER_MAXIMUM_LENGTH,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
-	stmt, err := g.OpenGeneratorPool().Prepare(tableInfoSql)
+	stmt, err := database.DB.Prepare(tableInfoSql)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer stmt.Close()
-	rows, err := stmt.Query(g.DBName, tableName)
+	rows, err := stmt.Query(dbName, tableName)
 	if err != nil {
 		log.Panicln(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		tableInfo := TableInfo{}
+		tableInfo := TableFieldInfo{}
 		err := rows.Scan(
 			&tableInfo.TableSchema,
 			&tableInfo.TableName,
@@ -93,14 +73,14 @@ func (g Generator) GetTableInfo(tableName string) (tableInfos []TableInfo) {
 		// 转换大小写
 		if globalConfig.CamelCase {
 			if globalConfig.Pascal {
-				tableInfo.CamelName = util.PascalUtil(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = tool.ToPascal(tableInfo.ColumnName, "_")
 			} else {
-				tableInfo.CamelName = util.CamelCaseUtil(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = tool.ToCamelCase(tableInfo.ColumnName, "_")
 			}
 		}
 		// 类型转换
-		switch strings.ToUpper(g.DriverName) {
-		case strings.ToUpper(g.DriverName):
+		switch strings.ToUpper(driver) {
+		case "MYSQL":
 			// mysql类型 => golang类型
 			tableInfo.GoType = MysqlToGo[tableInfo.DataType]
 		default:
