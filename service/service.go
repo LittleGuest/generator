@@ -17,6 +17,24 @@ type CodeDB struct {
 	TableNames []string `json:"table_names"` // 指定表
 }
 
+// ReadTemp 读取模板内容
+func ReadTemp(w http.ResponseWriter, r *http.Request) {
+	tempName := r.URL.Query().Get("temp_name")
+
+	if tempName ==""{
+		resp.Error(w, 1, "没有找到对应的模板")
+		return
+	}
+
+	content, err := ioutil.ReadFile("./generate/templates/" + tempName + ".html")
+	if err != nil {
+		resp.Error(w, 1, "读取模板文件失败")
+		return
+	}
+	resp.Success(w, string(content))
+}
+
+// ListTables 获取指定数据库的所有表信息
 func ListTables(w http.ResponseWriter, r *http.Request) {
 	codeDB := CodeDB{}
 	bytes, _ := ioutil.ReadAll(r.Body)
@@ -46,6 +64,7 @@ func ListTables(w http.ResponseWriter, r *http.Request) {
 	resp.Success(w, generate.ListTable(codeDB.DBName, ""))
 }
 
+// Create 生成代码并打包下载代码
 func Create(w http.ResponseWriter, r *http.Request) {
 	driver := r.URL.Query().Get("driver")
 	username := r.URL.Query().Get("username")

@@ -11,178 +11,44 @@
 <body>
 <div id="app">
     <el-container>
-        <el-main v-loading="loading">
-            <el-form ref="dbForm" :model="dbForm" :rules="dbFormRules">
-                <el-form-item label="驱动" :label-width="label_width" prop="driver">
-                    <el-input v-model="dbForm.driver" type="text" placeholder="请输入驱动名称" clearable disabled/>
-                </el-form-item>
-                <el-form-item label="主机" :label-width="label_width" prop="host">
-                    <el-input v-model="dbForm.host" placeholder="请输入主机" clearable/>
-                </el-form-item>
-                <el-form-item label="端口号" :label-width="label_width" prop="port">
-                    <el-input v-model="dbForm.port" placeholder="请输入端口号" clearable/>
-                </el-form-item>
-                <el-form-item label="数据库名称" :label-width="label_width" prop="db_name">
-                    <el-input v-model="dbForm.db_name" placeholder="请输入数据库名称" clearable/>
-                </el-form-item>
-                <el-form-item label="用户名" :label-width="label_width" prop="username">
-                    <el-input v-model="dbForm.username" placeholder="请输入用户名" clearable/>
-                </el-form-item>
-                <el-form-item label="密码" :label-width="label_width" prop="password">
-                    <el-input v-model="dbForm.password" placeholder="请输入密码" show-password clearable/>
-                </el-form-item>
-
-                <el-form-item label="额外参数" :label-width="label_width">
-                    <el-form-item v-for="ext in dbForm.extras" :key="ext.index"
-                                  :rules="{required: true, message: '键值不能为空', trigger: 'blur'}">
-                        <el-input v-model="ext.key" placeholder="键" clearable style="width: 30%"/>
-                        <el-input v-model="ext.value" placeholder="值" clearable style="width: 30%"/>
-                        <el-button @click.prevent="removeExtra(ext)">删除</el-button>
-                    </el-form-item>
-                    <el-button @click="addExtra()">新增</el-button>
-                </el-form-item>
-                <el-form-item label="表" :label-width="label_width">
-                    <el-select v-model="dbForm.table_names" multiple filterable placeholder="请选择表,(多表默认所有表)"
-                               style="width:250px">
-                        <el-option
-                                v-for="item in options"
-                                :key="item.name"
-                                :label="item.comment"
-                                :value="item.name"
-                        />
-                    </el-select>
-                </el-form-item>
-                <el-form-item :label-width="label_width">
-                    <el-button @click="resetForm('dbForm')">重置</el-button>
-                    <el-button @click="generate('dbForm')">生成</el-button>
-                </el-form-item>
-            </el-form>
+        <el-aside width="200px">
+            <el-row class="tac">
+                <el-col :span="6">
+                    <el-menu
+                            default-active="1"
+                            class="el-menu-vertical-demo">
+                        <el-menu-item index="1">
+                            <i class="el-icon-setting"></i>
+                            <span slot="title">
+                        <router-link to="/temp">模板管理</router-link>
+                    </span>
+                        </el-menu-item>
+                        <el-menu-item index="2">
+                            <i class="el-icon-setting"></i>
+                            <span slot="title">
+                            <router-link to="/create">生成器</router-link>
+                        </span>
+                        </el-menu-item>
+                    </el-menu>
+                </el-col>
+            </el-row>
+        </el-aside>
+        <el-main>
+            <router-view></router-view>
         </el-main>
     </el-container>
 </div>
 </body>
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="lib/vue.js"></script>
+<script src="lib/vue-router.js"></script>
+<script src="lib/axios.min.js"></script>
+<script src="lib/element-ui.js"></script>
+<script src="component.js"></script>
+<script src="router.js"></script>
 <script>
     var app = new Vue({
-        el: "#app",
-        data() {
-            return {
-                loading: false,
-                label_width: "100px",
-                dbForm: {
-                    driver: "mysql",
-                    host: "127.0.0.1",
-                    port: "3306",
-                    db_name: "",
-                    username: "root",
-                    password: "root",
-                    extras: [],
-                    table_names: [],
-                },
-                options: [],
-                dbFormRules: {
-                    driver: [
-                        {
-                            required: true,
-                            message: "驱动必填",
-                            trigger: "blur"
-                        }
-                    ],
-                    host: [
-                        {
-                            required: true,
-                            message: "主机必填",
-                            trigger: "blur"
-                        }
-                    ],
-                    port: [
-                        {
-                            required: true,
-                            message: "端口号必填",
-                            trigger: "blur"
-                        }
-                    ],
-                    db_name: [
-                        {
-                            required: true,
-                            message: "数据库名称必填",
-                            trigger: "blur"
-                        }
-                    ],
-                    username: [
-                        {
-                            required: true,
-                            message: "用户名必填",
-                            trigger: "blur"
-                        }
-                    ],
-                    password: [
-                        {
-                            required: true,
-                            message: "密码必填",
-                            trigger: "blur"
-                        }
-                    ]
-                }
-            };
-        },
-        mounted() {
-            axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
-                this.options = resp.data.data;
-            });
-        },
-        computed: {
-            newDBName() {
-                return this.dbForm.db_name
-            }
-        },
-        watch: {
-            newDBName(new_db_name, old) {
-                setTimeout(() => {
-                    axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
-                        this.options = resp.data.data;
-                    });
-                }, 2000)
-            }
-        },
-        methods: {
-            resetForm(formName) {
-                this.$refs[formName].resetFields();
-                this.dbForm.extras = [];
-            },
-            removeExtra(item) {
-                let index = this.dbForm.extras.indexOf(item);
-                if (index !== -1) {
-                    this.dbForm.extras.splice(index, 1);
-                }
-            },
-            addExtra() {
-                this.dbForm.extras.push({
-                    index: Date.now(),
-                    key: "",
-                    value: ""
-                });
-            },
-            generate(formName) {
-                this.$refs[formName].validate((valid) => {
-                    if (valid) {
-                        window.location.href = '/api/v1/create?' +
-                            'driver=' + this.dbForm.driver +
-                            '&username=' + this.dbForm.username +
-                            '&password=' + this.dbForm.password +
-                            '&host=' + this.dbForm.host +
-                            '&port=' + this.dbForm.port +
-                            '&db_name=' + this.dbForm.db_name +
-                            '&extras=' + this.dbForm.extras +
-                            '&table_names=' + this.dbForm.table_names.join(",")
-                    } else {
-                        return false;
-                    }
-                })
-            }
-        }
+        router,
+        el: "#app"
     });
 </script>
 </html>

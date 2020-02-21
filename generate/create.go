@@ -36,7 +36,7 @@ func Create(driver string, dbName string, tableNames string) {
 
 // CreateStruct 生成struct
 func CreateStruct(zw *zip.Writer, tableName string, tableInfos []TableFieldInfo) {
-	temp := template.Must(template.New(TempEntityName).ParseFiles(TempEntity))
+	temp := template.Must(template.New(TempModelName).ParseFiles(TempModel))
 	fw, err := zw.Create(tableName + ".go")
 	if err != nil {
 		log.Panicln(err)
