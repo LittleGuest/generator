@@ -1,4 +1,4 @@
-package service
+package handler
 
 import (
 	"encoding/json"
@@ -6,6 +6,8 @@ import (
 	"generator/database"
 	"generator/generate"
 	"generator/resp"
+	"generator/tool/filetool"
+	"generator/tool/strtool"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -21,7 +23,7 @@ type CodeDB struct {
 func ReadTemp(w http.ResponseWriter, r *http.Request) {
 	tempName := r.URL.Query().Get("temp_name")
 
-	if tempName ==""{
+	if tempName == "" {
 		resp.Error(w, 1, "没有找到对应的模板")
 		return
 	}
@@ -32,6 +34,39 @@ func ReadTemp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp.Success(w, string(content))
+}
+
+// SaveTemp 修改生成模板文件
+func SaveTemp(w http.ResponseWriter, r *http.Request) {
+	params, _ := ioutil.ReadAll(r.Body)
+	m := make(map[string]string)
+	_ = json.Unmarshal(params, &m)
+	tempName := m["temp_name"]
+	content := m["content"]
+	fmt.Println(m)
+
+	if strtool.IsBlank(tempName) {
+		resp.Error(w, 1, "模板文件名称为空")
+		return
+	}
+	if strtool.IsBlank(content) {
+		resp.Error(w, 1, "模板内容为空")
+		return
+	}
+
+	path := "./generate/templates/" + tempName + ".html"
+	err := os.Remove(path)
+	if err == nil {
+		tempFile, err := filetool.CreateFile(path)
+		if err != nil {
+			resp.Error(w, 1, "模板文件创建失败")
+			return
+		}
+
+		defer tempFile.Close()
+		_, _ = tempFile.WriteString(content)
+	}
+	resp.Success(w, nil)
 }
 
 // ListTables 获取指定数据库的所有表信息

@@ -5,11 +5,10 @@ package generate
 
 import (
 	"archive/zip"
+	"generator/tool/strtool"
 	"html/template"
 	"log"
 	"os"
-
-	"github.com/LittleGuest/tool"
 )
 
 // Create 生成代码
@@ -43,7 +42,7 @@ func CreateStruct(zw *zip.Writer, tableName string, tableInfos []TableFieldInfo)
 	}
 	m := make(map[string]interface{})
 	m["tableName"] = tableName
-	m["structName"] = tool.ToPascal(tableName, "_")
+	m["structName"] = strtool.ToPascal(tableName, "_")
 	m["tableInfos"] = tableInfos
 	if err = temp.Execute(fw, m); err != nil {
 		log.Panicln(err)

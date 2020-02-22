@@ -20,12 +20,19 @@ const Component = Vue.component('temp', {
         handleReadTemp(tempName) {
             axios.get('/api/v1/temp?temp_name=' + tempName).then(resp => {
                 var data = resp.data.data
-                console.log(data)
                 if (resp.data.code !== 0) {
                     this.$message.error(data)
                 } else {
                     this.tempContent = data
                 }
+            })
+        },
+        saveTemp() {
+            axios.post('/api/v1/temp', {
+                temp_name: this.activeName,
+                content: this.tempContent
+            }).then(resp => {
+                console.log(resp)
             })
         }
     },
@@ -45,7 +52,7 @@ const Component = Vue.component('temp', {
             <el-tabs v-model="activeName">
                 <el-tab-pane label="model" name="model">
                     <el-input type="textarea" autosize v-model="tempContent"></el-input>
-                    <el-button>保存</el-button>
+                    <el-button @click="saveTemp()">保存</el-button>
                 </el-tab-pane>
             </el-tabs>
         </div>

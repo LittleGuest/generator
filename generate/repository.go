@@ -2,7 +2,7 @@ package generate
 
 import (
 	"generator/database"
-	"github.com/LittleGuest/tool"
+	"generator/tool/strtool"
 	"log"
 	"strings"
 )
@@ -73,9 +73,9 @@ func GetTableInfo(driver string, dbName string, tableName string) (tableInfos []
 		// 转换大小写
 		if globalConfig.CamelCase {
 			if globalConfig.Pascal {
-				tableInfo.CamelName = tool.ToPascal(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = strtool.ToPascal(tableInfo.ColumnName, "_")
 			} else {
-				tableInfo.CamelName = tool.ToCamelCase(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = strtool.ToCamelCase(tableInfo.ColumnName, "_")
 			}
 		}
 		// 类型转换

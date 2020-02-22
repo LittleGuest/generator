@@ -1,7 +1,7 @@
 package main
 
 import (
-	"generator/service"
+	"generator/handler"
 	"log"
 	"net/http"
 	"time"
@@ -41,9 +41,10 @@ func main() {
 	router.Use(CorsHandler, RequestTimeHandler)
 
 	// 路由
-	router.HandleFunc("/api/v1/db/tables", service.ListTables).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/create", service.Create).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/temp", service.ReadTemp).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/db/tables", handler.ListTables).Methods(http.MethodPost)
+	router.HandleFunc("/api/v1/create", handler.Create).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/temp", handler.ReadTemp).Methods(http.MethodGet)
+	router.HandleFunc("/api/v1/temp", handler.SaveTemp).Methods(http.MethodPost)
 
 	// 静态文件服务
 	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
