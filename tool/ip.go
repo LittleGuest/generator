@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-// 获取IP地址（IPv4）
+// GetIPv4 获取IP地址（IPv4）
 func GetIPv4() net.IP {
 	interfaces, err := net.Interfaces()
 	if err != nil {

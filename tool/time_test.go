@@ -1,4 +1,4 @@
-package timetool
+package tool
 
 import (
 	"testing"

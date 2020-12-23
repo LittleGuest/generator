@@ -1,61 +1,56 @@
 package main
 
 import (
-	"generator/handler"
+	"context"
+	_ "generator/router"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 	"time"
-
-	"github.com/gorilla/mux"
 )
 
-// RequestTimeHandler 记录请求时间
-func RequestTimeHandler(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		handler.ServeHTTP(w, r)
-		end := time.Now()
-		log.Printf("%v\t%v, 耗时：%v", r.Method, r.RequestURI, end.Sub(start))
-	})
-}
-
-// CorsHandler 设置跨域请求
-func CorsHandler(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// 允许所有的请求
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		// 设置允许的Header类型
-		w.Header().Set("Access-Control-Allow-Headers", "*")
-		// options 请求直接返回
-		if r.Method == http.MethodOptions {
-			return
-		}
-		handler.ServeHTTP(w, r)
-	})
-}
+const (
+	addr         = "127.0.0.1:65535"
+	writeTimeout = time.Second * 15
+	readTimeout  = time.Second * 15
+	idleTimeout  = time.Second * 45
+)
 
 func main() {
-	// 初始化路由
-	router := mux.NewRouter()
-	// 启用中间件
-	router.Use(CorsHandler, RequestTimeHandler)
-
-	// 路由
-	router.HandleFunc("/api/v1/db/tables", handler.ListTables).Methods(http.MethodPost)
-	router.HandleFunc("/api/v1/create", handler.Create).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/temp", handler.ReadTemp).Methods(http.MethodGet)
-	router.HandleFunc("/api/v1/temp", handler.SaveTemp).Methods(http.MethodPost)
-
-	// 静态文件服务
-	router.PathPrefix("").Handler(http.StripPrefix("", http.FileServer(http.Dir("views"))))
-
-	log.Println("run at :65535")
+	log.Println(banner)
 
 	server := &http.Server{
-		Addr:         ":65535",
-		Handler:      router,
-		ReadTimeout:  time.Second * 60,
-		WriteTimeout: time.Second * 60,
+		Addr:         addr,
+		WriteTimeout: writeTimeout,
+		ReadTimeout:  readTimeout,
+		IdleTimeout:  idleTimeout,
 	}
-	log.Fatalln(server.ListenAndServe())
+
+	go func() {
+		log.Printf("listen at %v", addr)
+		if err := server.ListenAndServe(); err != nil {
+			log.Fatalf("服务启动失败：%v", err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill)
+	<-c
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("服务关闭失败：%v", err)
+	}
+	os.Exit(0)
 }
+
+var banner = `
+   _____     _____      __      _    _____   ______       ____     ________     ____     ______    
+  / ___ \   / ___/     /  \    / )  / ___/  (   __ \     (    )   (___  ___)   / __ \   (   __ \   
+ / /   \_) ( (__      / /\ \  / /  ( (__     ) (__) )    / /\ \       ) )     / /  \ \   ) (__) )  
+( (  ____   ) __)     ) ) ) ) ) )   ) __)   (    __/    ( (__) )     ( (     ( ()  () ) (    __/   
+( ( (__  ) ( (       ( ( ( ( ( (   ( (       ) \ \  _    )    (       ) )    ( ()  () )  ) \ \  _  
+ \ \__/ /   \ \___   / /  \ \/ /    \ \___  ( ( \ \_))  /  /\  \     ( (      \ \__/ /  ( ( \ \_)) 
+  \____/     \____\ (_/    \__/      \____\  )_) \__/  /__(  )__\    /__\      \____/    )_) \__/  
+`

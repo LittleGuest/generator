@@ -1,13 +1,15 @@
 // 字符工具包
-package strtool
+package tool
 
 import (
 	"encoding/json"
+	"encoding/xml"
+	"log"
 	"strconv"
 	"strings"
 )
 
-// 小驼峰
+// ToCamelCase 小驼峰
 func ToCamelCase(source string, sep string) (result string) {
 	sources := strings.Split(source, sep)
 	for k, v := range sources {
@@ -20,7 +22,7 @@ func ToCamelCase(source string, sep string) (result string) {
 	return
 }
 
-// 大驼峰
+// ToPascal 大驼峰
 func ToPascal(source string, sep string) (result string) {
 	sources := strings.Split(source, sep)
 	for _, v := range sources {
@@ -29,7 +31,7 @@ func ToPascal(source string, sep string) (result string) {
 	return
 }
 
-// 首字母大写
+// FirstLetterToUpper 首字母大写
 func FirstLetterToUpper(target string) (result string) {
 	chars := []rune(target)
 	for key, value := range chars {
@@ -43,7 +45,7 @@ func FirstLetterToUpper(target string) (result string) {
 	return
 }
 
-// ToString
+// ToString to string
 func ToString(arg interface{}) string {
 	switch arg.(type) {
 	case int:
@@ -56,7 +58,7 @@ func ToString(arg interface{}) string {
 	}
 }
 
-// 判断字符串是否为空
+// IsBlank 判断字符串是否为空
 func IsBlank(str string) bool {
 	if len(str) <= 0 {
 		return true
@@ -67,7 +69,17 @@ func IsBlank(str string) bool {
 	return false
 }
 
-// 判断字符串是否不为空
+// IsNotBlank 判断字符串是否不为空
 func IsNotBlank(str string) bool {
 	return !IsBlank(str)
+}
+
+// Xml2JsonString xml转json
+func Xml2JsonString(x string) (string, error) {
+	d, err := xml.Marshal(x)
+	if err != nil {
+		return "", err
+	}
+	log.Println(string(d))
+	return string(d), nil
 }

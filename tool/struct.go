@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-// 复制属性
+// CopyStructProperty copy struct properties
 func CopyStructProperty(src interface{}, dst interface{}) error {
 	srcValue := reflect.ValueOf(src)
 	if srcValue.Type().Kind() == reflect.Ptr {

@@ -1,14 +1,14 @@
-// 连接数据库
-package database
+package repo
 
 import (
 	"database/sql"
 	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
 // 全局变量
-var DB *sql.DB
+var db *sql.DB
 
 // DB 数据库连接信息
 type ConnInfo struct {
@@ -23,6 +23,8 @@ type ConnInfo struct {
 
 // ConnectDB 连接数据库
 func ConnectDB(info ConnInfo) error {
+	var err error
+
 	driverName := info.Driver
 	extras := "?"
 	if info.Extras != nil {
@@ -30,12 +32,22 @@ func ConnectDB(info ConnInfo) error {
 			extras += k + "=" + v
 		}
 	}
-	dataSourceName := fmt.Sprintf("%v:%v@(%v:%v)/%v%v",
-		info.Username, info.Password, info.Host, info.Port, info.DBName, extras)
-	db, err := sql.Open(driverName, dataSourceName)
+
+	dataSourceName := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v%v", info.Username, info.Password, info.Host, info.Port, info.DBName, extras)
+
+	db, err = sql.Open(driverName, dataSourceName)
 	if err != nil {
 		return err
 	}
-	DB = db
+
+	if err = db.Ping(); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+// GetDB return sql.DB's pointer
+func GetDB() *sql.DB {
+	return db
 }

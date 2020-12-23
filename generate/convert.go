@@ -1,4 +1,3 @@
-// mysql 类型和golang 类型对应
 package generate
 
 var MysqlToGo = map[string]string{

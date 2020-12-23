@@ -1,6 +1,8 @@
-package filetool
+package tool
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateDirectory(t *testing.T) {
 	//t.Log(CreateDirectory("test"))

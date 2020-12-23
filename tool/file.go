@@ -1,5 +1,5 @@
 // 文件工具包
-package filetool
+package tool
 
 import (
 	"log"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// 创建目录
+// CreateDirectory 创建目录
 func CreateDirectory(path string) (err error) {
 	err = os.MkdirAll(path, 0666)
 	if err != nil {
@@ -17,7 +17,7 @@ func CreateDirectory(path string) (err error) {
 	return
 }
 
-// 创建文件
+// CreateFile 创建文件
 func CreateFile(name string) (file *os.File, err error) {
 	// 先创建目录
 	p := filepath.Dir(name)
@@ -33,7 +33,7 @@ func CreateFile(name string) (file *os.File, err error) {
 	return
 }
 
-// 获取文件后缀
+// GetFileSuffix 获取文件后缀
 func GetFileSuffix(fileName string) string {
 	lastIndex := strings.LastIndex(fileName, ".")
 	return fileName[lastIndex+1:]

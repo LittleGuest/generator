@@ -3,19 +3,17 @@ package handler
 import (
 	"encoding/json"
 	"fmt"
-	"generator/database"
 	"generator/generate"
+	"generator/repo"
 	"generator/resp"
-	"generator/tool/filetool"
-	"generator/tool/strtool"
+	"generator/tool"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 )
 
 type CodeDB struct {
-	database.ConnInfo
+	repo.ConnInfo
 	TableNames []string `json:"table_names"` // 指定表
 }
 
@@ -24,16 +22,24 @@ func ReadTemp(w http.ResponseWriter, r *http.Request) {
 	tempName := r.URL.Query().Get("temp_name")
 
 	if tempName == "" {
-		resp.Error(w, 1, "没有找到对应的模板")
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "没有找到对应的模板",
+		})
 		return
 	}
 
 	content, err := ioutil.ReadFile("./generate/templates/" + tempName + ".html")
 	if err != nil {
-		resp.Error(w, 1, "读取模板文件失败")
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "读取模板文件失败",
+		})
 		return
 	}
-	resp.Success(w, string(content))
+	resp.WriteJSON(w, resp.Resp{
+		Data: string(content),
+	})
 }
 
 // SaveTemp 修改生成模板文件
@@ -45,28 +51,37 @@ func SaveTemp(w http.ResponseWriter, r *http.Request) {
 	content := m["content"]
 	fmt.Println(m)
 
-	if strtool.IsBlank(tempName) {
-		resp.Error(w, 1, "模板文件名称为空")
+	if tool.IsBlank(tempName) {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "模板文件名称为空",
+		})
 		return
 	}
-	if strtool.IsBlank(content) {
-		resp.Error(w, 1, "模板内容为空")
+	if tool.IsBlank(content) {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "模板内容为空",
+		})
 		return
 	}
 
 	path := "./generate/templates/" + tempName + ".html"
 	err := os.Remove(path)
 	if err == nil {
-		tempFile, err := filetool.CreateFile(path)
+		tempFile, err := tool.CreateFile(path)
 		if err != nil {
-			resp.Error(w, 1, "模板文件创建失败")
+			resp.WriteJSON(w, resp.Resp{
+				Code: 1,
+				Msg:  "模板文件创建失败",
+			})
 			return
 		}
 
 		defer tempFile.Close()
 		_, _ = tempFile.WriteString(content)
 	}
-	resp.Success(w, nil)
+	resp.WriteJSON(w, resp.Resp{})
 }
 
 // ListTables 获取指定数据库的所有表信息
@@ -76,7 +91,7 @@ func ListTables(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(bytes, &codeDB)
 
 	// 连接数据库
-	connInfo := database.ConnInfo{
+	connInfo := repo.ConnInfo{
 		Driver:   codeDB.Driver,
 		Username: codeDB.Username,
 		Password: codeDB.Password,
@@ -86,17 +101,40 @@ func ListTables(w http.ResponseWriter, r *http.Request) {
 		Extras:   nil,
 	}
 
+	// connInfo := repo.ConnInfo{}
+	// err := tool.CopyStructProperty(codeDB, connInfo)
+	// if err != nil {
+	// 	resp.WriteJSON(w, resp.Resp{
+	// 		Code: http.StatusInternalServerError,
+	// 		Msg:  err.Error(),
+	// 	})
+	// 	return
+	// }
+
 	if connInfo.DBName == "" {
 		return
 	}
 
-	err := database.ConnectDB(connInfo)
+	err := repo.ConnectDB(connInfo)
 	if err != nil {
-		resp.Error(w, 1, fmt.Sprintf("数据库连接失败：%v", err))
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  fmt.Sprintf("数据库连接失败：%v", err),
+		})
 		return
 	}
 
-	resp.Success(w, generate.ListTable(codeDB.DBName, ""))
+	d, err := generate.ListTable(codeDB.DBName, "")
+	if err != nil {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  err.Error(),
+		})
+		return
+	}
+	resp.WriteJSON(w, resp.Resp{
+		Data: d,
+	})
 }
 
 // Create 生成代码并打包下载代码
@@ -111,7 +149,7 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	tableNames := r.URL.Query().Get("table_names")
 
 	// 连接数据库
-	connInfo := database.ConnInfo{
+	connInfo := repo.ConnInfo{
 		Driver:   driver,
 		Username: username,
 		Password: password,
@@ -121,13 +159,20 @@ func Create(w http.ResponseWriter, r *http.Request) {
 		Extras:   nil, // TODO 额外参数解析
 	}
 
-	if connInfo.DBName == "" {
+	if tool.IsBlank(connInfo.DBName) {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "数据库为空",
+		})
 		return
 	}
 
-	err := database.ConnectDB(connInfo)
+	err := repo.ConnectDB(connInfo)
 	if err != nil {
-		resp.Error(w, 1, fmt.Sprintf("数据库连接失败：%v", err))
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  fmt.Sprintf("数据库连接失败：%v", err),
+		})
 		return
 	}
 
@@ -138,8 +183,57 @@ func Create(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(codeFile)
 
 	if err := os.Remove("code.zip"); err != nil {
-		log.Println(err)
-		resp.Error(w, 1, "生成失败")
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "生成失败",
+		})
 		return
 	}
+}
+
+// TestConnect test db connect
+func TestConnect(w http.ResponseWriter, r *http.Request) {
+	codeDB := CodeDB{}
+	bytes, _ := ioutil.ReadAll(r.Body)
+	_ = json.Unmarshal(bytes, &codeDB)
+
+	// 连接数据库
+	connInfo := repo.ConnInfo{
+		Driver:   codeDB.Driver,
+		Username: codeDB.Username,
+		Password: codeDB.Password,
+		Host:     codeDB.Host,
+		Port:     codeDB.Port,
+		DBName:   codeDB.DBName,
+		Extras:   nil,
+	}
+
+	if tool.IsBlank(connInfo.DBName) {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  "数据库为空",
+		})
+		return
+	}
+
+	err := repo.ConnectDB(connInfo)
+	if err != nil {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  fmt.Sprintf("数据库连接失败：%v", err),
+		})
+		return
+	}
+
+	d, err := generate.ListTable(codeDB.DBName, "")
+	if err != nil {
+		resp.WriteJSON(w, resp.Resp{
+			Code: 1,
+			Msg:  err.Error(),
+		})
+		return
+	}
+	resp.WriteJSON(w, resp.Resp{
+		Data: d,
+	})
 }

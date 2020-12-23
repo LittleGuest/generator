@@ -1,6 +1,8 @@
-package strtool
+package tool
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestToCamelCase(t *testing.T) {
 	t.Log(ToCamelCase("dd_dd", "_"))
@@ -39,4 +41,13 @@ func TestIsNotBlank(t *testing.T) {
 	t.Log(IsNotBlank("gopher"))
 	t.Log(IsNotBlank(""))
 	t.Log(IsNotBlank(" "))
+}
+
+func TestXml2JsonString(t *testing.T) {
+	x := `
+	<xml>
+	<data></data>
+	</xml>
+	`
+	t.Log(Xml2JsonString(x))
 }

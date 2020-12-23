@@ -1,36 +1,34 @@
 package generate
 
 import (
-	"generator/database"
-	"generator/tool/strtool"
-	"log"
+	"generator/repo"
+	"generator/tool"
 	"strings"
 )
 
 // ListTable 获取指定数据库中所有表信息
-func ListTable(dbName string, tableNames string) (tables []TableInfo) {
+func ListTable(dbName string, tableNames string) (tables []TableInfo, err error) {
 	tablesSql := "SELECT t.TABLE_NAME,t.TABLE_COMMENT FROM information_schema.`TABLES` t WHERE t.TABLE_SCHEMA = ?"
-	if tableNames != "" {
+	if tool.IsNotBlank(tableNames) {
 		tablesSql += " AND FIND_IN_SET(t.TABLE_NAME, ?)"
 	}
-	stmt, err := database.DB.Prepare(tablesSql)
+	stmt, err := repo.GetDB().Prepare(tablesSql)
 	if err != nil {
-		log.Panicln(err)
+		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(dbName)
-	if tableNames != "" {
+	if tool.IsNotBlank(tableNames) {
 		rows, err = stmt.Query(dbName, tableNames)
 	}
 	if err != nil {
-		log.Panicln(err)
+		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		table := TableInfo{}
 		err = rows.Scan(&table.Name, &table.Comment)
 		if err != nil {
-			log.Println(err)
 			continue
 		}
 		tables = append(tables, table)
@@ -39,16 +37,16 @@ func ListTable(dbName string, tableNames string) (tables []TableInfo) {
 }
 
 // GetTableInfo 获取指定数据库中指定表字段信息
-func GetTableInfo(driver string, dbName string, tableName string) (tableInfos []TableFieldInfo) {
+func GetTableInfo(driver string, dbName string, tableName string) (tableInfos []TableFieldInfo, err error) {
 	tableInfoSql := "SELECT c.TABLE_SCHEMA,c.TABLE_NAME,c.COLUMN_NAME,c.COLUMN_DEFAULT,c.IS_NULLABLE,c.DATA_TYPE,c.NUMERIC_PRECISION,c.NUMERIC_SCALE,c.CHARACTER_MAXIMUM_LENGTH,c.COLUMN_COMMENT FROM information_schema.`COLUMNS` c WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?"
-	stmt, err := database.DB.Prepare(tableInfoSql)
+	stmt, err := repo.GetDB().Prepare(tableInfoSql)
 	if err != nil {
-		log.Panicln(err)
+		return nil, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(dbName, tableName)
 	if err != nil {
-		log.Panicln(err)
+		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
@@ -66,16 +64,15 @@ func GetTableInfo(driver string, dbName string, tableName string) (tableInfos []
 			&tableInfo.ColumnComment,
 		)
 		if err != nil {
-			log.Println(err)
 			continue
 		}
 		globalConfig := NewGlobalConfig()
 		// 转换大小写
 		if globalConfig.CamelCase {
 			if globalConfig.Pascal {
-				tableInfo.CamelName = strtool.ToPascal(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = tool.ToPascal(tableInfo.ColumnName, "_")
 			} else {
-				tableInfo.CamelName = strtool.ToCamelCase(tableInfo.ColumnName, "_")
+				tableInfo.CamelName = tool.ToCamelCase(tableInfo.ColumnName, "_")
 			}
 		}
 		// 类型转换

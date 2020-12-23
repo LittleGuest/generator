@@ -1,4 +1,4 @@
-const Component = Vue.component('temp', {
+const Temp = Vue.component('temp', {
     data() {
         return {
             activeName: 'model',
@@ -18,22 +18,22 @@ const Component = Vue.component('temp', {
     },
     methods: {
         handleReadTemp(tempName) {
-            axios.get('/api/v1/temp?temp_name=' + tempName).then(resp => {
-                var data = resp.data.data
-                if (resp.data.code !== 0) {
-                    this.$message.error(data)
-                } else {
-                    this.tempContent = data
-                }
-            })
+            // axios.get('/api/v1/temp?temp_name=' + tempName).then(resp => {
+            //     var data = resp.data.data
+            //     if (resp.data.code !== 0) {
+            //         this.$message.error(data)
+            //     } else {
+            //         this.tempContent = data
+            //     }
+            // })
         },
         saveTemp() {
-            axios.post('/api/v1/temp', {
-                temp_name: this.activeName,
-                content: this.tempContent
-            }).then(resp => {
-                console.log(resp)
-            })
+            // axios.post('/api/v1/temp', {
+            //     temp_name: this.activeName,
+            //     content: this.tempContent
+            // }).then(resp => {
+            //     console.log(resp)
+            // })
         }
     },
     template: `
@@ -67,79 +67,82 @@ const Create = Vue.component('create', {
                 driver: "mysql",
                 host: "127.0.0.1",
                 port: "3306",
-                db_name: "",
+                db_name: "test",
                 username: "root",
                 password: "root",
-                extras: [],
+                extras: [{
+                        index: 1,
+                        key: "useSSL",
+                        value: false
+                    },
+                    {
+                        index: 2,
+                        key: "charset",
+                        value: "utf8"
+                    },
+                    {
+                        index: 3,
+                        key: "parseTime",
+                        value: true
+                    }
+                ],
                 table_names: [],
             },
             options: [],
             dbFormRules: {
-                driver: [
-                    {
-                        required: true,
-                        message: "驱动必填",
-                        trigger: "blur"
-                    }
-                ],
-                host: [
-                    {
-                        required: true,
-                        message: "主机必填",
-                        trigger: "blur"
-                    }
-                ],
-                port: [
-                    {
-                        required: true,
-                        message: "端口号必填",
-                        trigger: "blur"
-                    }
-                ],
-                db_name: [
-                    {
-                        required: true,
-                        message: "数据库名称必填",
-                        trigger: "blur"
-                    }
-                ],
-                username: [
-                    {
-                        required: true,
-                        message: "用户名必填",
-                        trigger: "blur"
-                    }
-                ],
-                password: [
-                    {
-                        required: true,
-                        message: "密码必填",
-                        trigger: "blur"
-                    }
-                ]
+                driver: [{
+                    required: true,
+                    message: "驱动必填",
+                    trigger: "blur"
+                }],
+                host: [{
+                    required: true,
+                    message: "主机必填",
+                    trigger: "blur"
+                }],
+                port: [{
+                    required: true,
+                    message: "端口号必填",
+                    trigger: "blur"
+                }],
+                db_name: [{
+                    required: true,
+                    message: "数据库名称必填",
+                    trigger: "blur"
+                }],
+                username: [{
+                    required: true,
+                    message: "用户名必填",
+                    trigger: "blur"
+                }],
+                password: [{
+                    required: true,
+                    message: "密码必填",
+                    trigger: "blur"
+                }]
             }
         };
     },
-    mounted() {
-        axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
-            this.options = resp.data.data;
-        });
-    },
-    computed: {
-        newDBName() {
-            return this.dbForm.db_name
-        }
-    },
-    watch: {
-        newDBName(new_db_name, old) {
-            setTimeout(() => {
-                axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
-                    this.options = resp.data.data;
-                });
-            }, 2000)
-        }
-    },
     methods: {
+        testConnect(formName) {
+            this.$refs[formName].validate((valid) => {
+                if (valid) {
+                    axios.post('/api/v1/test', this.dbForm).then(resp => {
+                        var data = resp.data.data
+                        if (resp.data.code !== 0) {
+                            this.$message.error(resp.data.msg)
+                        } else {
+                            this.$message.success("连接成功")
+                            axios.post('/api/v1/db/tables', this.dbForm).then(resp => {
+                                this.options = resp.data.data
+                            });
+                        }
+                    });
+                } else {
+                    return false;
+                }
+            })
+        },
         resetForm(formName) {
             this.$refs[formName].resetFields();
             this.dbForm.extras = [];
@@ -173,9 +176,6 @@ const Create = Vue.component('create', {
                     return false;
                 }
             })
-        },
-        handleClick(tab, event) {
-            console.log(tab, event);
         }
     },
     template: `<el-form ref="dbForm" :model="dbForm" :rules="dbFormRules">
@@ -219,9 +219,9 @@ const Create = Vue.component('create', {
                 </el-select>
             </el-form-item>
             <el-form-item :label-width="label_width">
+                <el-button @click="testConnect('dbForm')">测试连接</el-button>
                 <el-button @click="resetForm('dbForm')">重置</el-button>
                 <el-button @click="generate('dbForm')">生成</el-button>
             </el-form-item>
         </el-form>`
 })
-
